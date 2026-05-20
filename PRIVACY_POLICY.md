@@ -1,6 +1,6 @@
 # Privacy Policy / 隐私政策
 
-**App name / 应用名称**: 小黄书 (Naught Game)
+**App name / 应用名称**: 多人成行 (Naught Game)
 **Package / 包名**: `com.worksonmymachine.naughtgame`
 **Effective date / 生效日期**: 2026-05-13
 **Last updated / 最后更新**: 2026-05-13
@@ -11,7 +11,7 @@
 
 ### 1. Introduction
 
-This Privacy Policy explains how 小黄书 ("the App", "we", "us", or "our")
+This Privacy Policy explains how Naught Game ("the App", "we", "us", or "our")
 collects, uses, stores, and shares information when you use our mobile
 application. By installing or using the App, you agree to the practices
 described in this policy.
@@ -33,13 +33,10 @@ sync, login, or payment). The categories we may collect:
   password (OTP). Sign-in is **optional**; the App is fully playable
   without an account. We use the email solely to authenticate you and
   associate you with your uploaded content.
-- **Sign in with Apple identifier** (only if you choose Apple sign-in).
-  Apple may provide a relay email; we never see your real Apple ID
-  email unless you opt in.
-- **Google Sign-In identifier** (only if you choose Google sign-in).
 
 We **do not** collect your phone number, real name, address, or
-contacts.
+contacts. We do **not** integrate any third-party login provider
+(such as Sign in with Apple or Google Sign-In).
 
 #### 2.2 User-generated content (only if you upload)
 
@@ -105,8 +102,6 @@ their own privacy policy that governs their handling of your data:
 | **RevenueCat** (subscription management) | Validate Apple/Google receipts, manage entitlements | https://www.revenuecat.com/privacy |
 | **Apple App Store / StoreKit** (iOS purchases) | Process iOS in-app purchases | https://www.apple.com/legal/privacy/ |
 | **Google Play Billing** (Android purchases) | Process Android in-app purchases | https://policies.google.com/privacy |
-| **Sign in with Apple** *(optional)* | Anonymous OAuth login on iOS | https://www.apple.com/legal/privacy/ |
-| **Google Sign-In** *(optional)* | OAuth login | https://policies.google.com/privacy |
 | **Firebase** *(infrastructure for Google services)* | Distribution / crash reporting | https://firebase.google.com/support/privacy |
 
 We do not transfer raw personal data to any third party other than
@@ -187,7 +182,7 @@ For privacy questions, deletion requests, or any concerns:
 
 ### 1. 引言
 
-本《隐私政策》说明小黄书（"本应用"）在你使用过程中如何收集、使用、存储
+本《隐私政策》说明多人成行（"本应用"）在你使用过程中如何收集、使用、存储
 和共享相关信息。安装或使用本应用即表示你同意本政策所述做法。
 
 本应用面向 17 岁及以上的成年用户，用于线下与伴侣或亲密好友进行派对类游戏。
@@ -203,11 +198,9 @@ For privacy questions, deletion requests, or any concerns:
 
 - **邮箱地址**——你通过邮箱一次性验证码（OTP）登录时收集。登录是**可选的**；
   不登录也可完整使用本应用。邮箱仅用于身份验证并与你上传的内容关联。
-- **Apple 登录标识**（仅在你选择 Apple 登录时）：Apple 可能提供中转邮箱，
-  我们看不到你真实的 Apple ID 邮箱。
-- **Google 登录标识**（仅在你选择 Google 登录时）。
 
-我们**不会**收集你的手机号、真实姓名、地址或通讯录。
+我们**不会**收集你的手机号、真实姓名、地址或通讯录，
+也**不接入**任何第三方登录方式（如 Apple ID、Google 账号）。
 
 #### 2.2 用户生成内容（仅在你上传时）
 
@@ -265,8 +258,6 @@ For privacy questions, deletion requests, or any concerns:
 | **RevenueCat**（订阅管理）| 验证 Apple / Google 收据、管理会员权益 | https://www.revenuecat.com/privacy |
 | **Apple App Store / StoreKit** | iOS 内购处理 | https://www.apple.com/legal/privacy/ |
 | **Google Play 计费** | Android 内购处理 | https://policies.google.com/privacy |
-| **Sign in with Apple** *（可选）* | iOS 上的 OAuth 登录 | https://www.apple.com/legal/privacy/ |
-| **Google 登录** *（可选）* | OAuth 登录 | https://policies.google.com/privacy |
 | **Firebase**（基础设施）| App 分发 / 崩溃汇报 | https://firebase.google.com/support/privacy |
 
 除上述服务为上述目的外，我们**不会**向任何第三方传输你的个人信息原始数据。
