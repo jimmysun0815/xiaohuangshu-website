@@ -46,11 +46,23 @@
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-    <script src="./js/config.js"></script>
-    <script src="./js/auth.js"></script>
+    <script src="./js/config.js?v=3"></script>
+    <script src="./js/auth.js?v=3"></script>
     <script>
       (async function () {
         const auth = window.AdminAuth;
+        if (!auth) {
+          // 99% 是 auth.js 没加载（被缓存 / 被 Vercel 路由到 index.html）。
+          // 直接弹出来，比 "Cannot read properties of undefined" 友好得多。
+          document.body.innerHTML =
+            '<div style="padding:40px;font-family:sans-serif;">' +
+            '<h2>登录页加载失败</h2>' +
+            '<p>auth.js 没加载到。请按 <b>Cmd/Ctrl + Shift + R</b> 强刷一下。</p>' +
+            '<p>如果反复出现，请打开开发者工具 (F12) → Network 标签 → 刷新 → ' +
+            '看 <code>auth.js</code> 是不是 200 + 类型为 script。</p>' +
+            '</div>';
+          return;
+        }
 
         // URL 上的 reason= 是从 dashboard 被踢出来时塞的提示
         const params = new URLSearchParams(location.search);
