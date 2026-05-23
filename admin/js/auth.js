@@ -25,9 +25,17 @@
     }
   );
 
+  // 账号密码登录（admin 后台默认走这个，简单直接）。
+  // 密码不落任何前端代码 / 环境变量 —— 只存在 Supabase auth.users.encrypted_password
+  // (bcrypt)，由 Supabase Studio 给 admin 用户单独设。
+  async function signInWithPassword(email, password) {
+    const { error } = await supa.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+  }
+
+  // 保留 OTP 接口（以备未来给非 admin 自助找回密码 / 登录其它系统用，
+  // 当前 admin 登录页不再走这个）。
   async function sendOtp(email) {
-    // shouldCreateUser:false → 没注册过的邮箱不会被静默创建，避免被刷邮件。
-    // admin 邮箱必须先在 app 里注册过 + 在 SQL 里被打 is_admin=true 标记。
     const { error } = await supa.auth.signInWithOtp({
       email,
       options: { shouldCreateUser: false },
@@ -83,6 +91,7 @@
 
   window.AdminAuth = {
     supa,
+    signInWithPassword,
     sendOtp,
     verifyOtp,
     getCurrentUser,
