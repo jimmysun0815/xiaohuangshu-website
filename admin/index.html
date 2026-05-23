@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>管理员登录 · 多人成行</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="login-shell">
+      <div class="login-card">
+        <h1>管理员登录</h1>
+        <p class="muted">
+          仅限授权账号。请输入 admin 邮箱获取一次性验证码。
+        </p>
+
+        <div id="reasonBanner" class="error-text" style="display:none;"></div>
+
+        <!-- 步骤 1：邮箱 -->
+        <form id="emailForm">
+          <div class="form-row">
+            <label for="email">邮箱</label>
+            <input
+              id="email"
+              class="input"
+              type="email"
+              autocomplete="email"
+              placeholder="admin@example.com"
+              required
+            />
+          </div>
+          <button id="sendBtn" class="btn btn-primary btn-block" type="submit">
+            发送验证码
+          </button>
+          <p id="emailError" class="error-text" style="display:none;"></p>
+        </form>
+
+        <!-- 步骤 2：验证码 -->
+        <form id="codeForm" style="display:none;">
+          <div class="form-row">
+            <label for="code">6 位验证码</label>
+            <input
+              id="code"
+              class="input"
+              type="text"
+              inputmode="numeric"
+              autocomplete="one-time-code"
+              placeholder="123456"
+              required
+              maxlength="6"
+            />
+          </div>
+          <button id="verifyBtn" class="btn btn-primary btn-block" type="submit">
+            验证并登录
+          </button>
+          <p class="info-text">没收到？检查垃圾邮件，或 <a href="#" id="resendLink">重新发送</a>。</p>
+          <p id="codeError" class="error-text" style="display:none;"></p>
+        </form>
+      </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+    <script src="./js/config.js"></script>
+    <script src="./js/auth.js"></script>
+    <script>
+      (async function () {
+        const auth = window.AdminAuth;
+
+        // URL 上的 reason= 是从 dashboard 被踢出来时塞的提示
+        const params = new URLSearchParams(location.search);
+        const reason = params.get("reason");
+        if (reason) {
+          const b = document.getElementById("reasonBanner");
+          b.textContent = decodeURIComponent(reason);
+          b.style.display = "block";
+        }
+
+        // 已经登录 + 是 admin → 直接进 dashboard
+        try {
+          const ok = await auth.isAdmin();
+          if (ok) {
+            location.replace("./dashboard.html");
+            return;
+          }
+        } catch (_) {}
+
+        const emailForm = document.getElementById("emailForm");
+        const codeForm = document.getElementById("codeForm");
+        const emailInput = document.getElementById("email");
+        const codeInput = document.getElementById("code");
+        const sendBtn = document.getElementById("sendBtn");
+        const verifyBtn = document.getElementById("verifyBtn");
+        const emailError = document.getElementById("emailError");
+        const codeError = document.getElementById("codeError");
+
+        function showError(el, msg) {
+          el.textContent = msg;
+          el.style.display = "block";
+        }
+        function clearError(el) {
+          el.textContent = "";
+          el.style.display = "none";
+        }
+
+        emailForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          clearError(emailError);
+          const email = emailInput.value.trim().toLowerCase();
+          if (!email) return;
+          sendBtn.disabled = true;
+          sendBtn.textContent = "发送中…";
+          try {
+            await auth.sendOtp(email);
+            emailForm.style.display = "none";
+            codeForm.style.display = "block";
+            codeInput.focus();
+          } catch (err) {
+            showError(
+              emailError,
+              err?.message || "发送失败，请检查邮箱是否已在 app 注册"
+            );
+          } finally {
+            sendBtn.disabled = false;
+            sendBtn.textContent = "发送验证码";
+          }
+        });
+
+        codeForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          clearError(codeError);
+          const email = emailInput.value.trim().toLowerCase();
+          const token = codeInput.value.trim();
+          if (token.length < 4) {
+            showError(codeError, "验证码至少 4 位");
+            return;
+          }
+          verifyBtn.disabled = true;
+          verifyBtn.textContent = "验证中…";
+          try {
+            await auth.verifyOtp(email, token);
+            const ok = await auth.isAdmin();
+            if (!ok) {
+              await auth.signOut();
+              showError(
+                codeError,
+                "登录成功但该账号不是管理员，已自动登出。请联系超级管理员开通权限。"
+              );
+              verifyBtn.disabled = false;
+              verifyBtn.textContent = "验证并登录";
+              return;
+            }
+            location.replace("./dashboard.html");
+          } catch (err) {
+            showError(codeError, err?.message || "验证码错误，请重试");
+            verifyBtn.disabled = false;
+            verifyBtn.textContent = "验证并登录";
+          }
+        });
+
+        document
+          .getElementById("resendLink")
+          .addEventListener("click", async (e) => {
+            e.preventDefault();
+            clearError(codeError);
+            const email = emailInput.value.trim().toLowerCase();
+            if (!email) return;
+            try {
+              await auth.sendOtp(email);
+            } catch (err) {
+              showError(codeError, err?.message || "重新发送失败");
+            }
+          });
+      })();
+    </script>
+  </body>
+</html>
