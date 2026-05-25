@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex,nofollow" />
+    <!-- 没有这行的话，访问 /admin/xxx（无斜杠）时浏览器会把 ./js/x.js 解析到错误的路径 -->
+    <base href="/admin/" />
     <title>管理后台 · 多人成行</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>

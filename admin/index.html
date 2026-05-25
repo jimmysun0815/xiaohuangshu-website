@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex,nofollow" />
+    <!-- 没有这行的话，访问 /admin（无斜杠）时浏览器会把 ./vendor/x.js 解析到 /vendor/x.js -->
+    <base href="/admin/" />
     <title>管理员登录 · 多人成行</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
