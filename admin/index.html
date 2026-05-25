@@ -45,23 +45,37 @@
       </div>
     </main>
 
-    <!-- 自托管 supabase-js（jsdelivr 在大陆抽风过，本地存一份免得登录页直接挂） -->
-    <script src="./vendor/supabase.min.js?v=3"></script>
-    <script src="./js/config.js?v=3"></script>
-    <script src="./js/auth.js?v=3"></script>
+    <!-- 自托管 supabase-js + Chart.js，避免外部 CDN 抽风 -->
+    <script src="./vendor/supabase.min.js?v=4"></script>
+    <script src="./js/config.js?v=4"></script>
+    <script src="./js/auth.js?v=4"></script>
     <script>
       (async function () {
         const auth = window.AdminAuth;
         if (!auth) {
-          // 99% 是 auth.js 没加载（被缓存 / 被 Vercel 路由到 index.html）。
-          // 直接弹出来，比 "Cannot read properties of undefined" 友好得多。
-          document.body.innerHTML =
-            '<div style="padding:40px;font-family:sans-serif;">' +
+          // 把每一步实际状态都打出来，方便排错
+          var diag = {
+            "vendor/supabase.min.js (window.supabase)":
+              typeof window.supabase + " " +
+              (window.supabase ? "(createClient="+typeof window.supabase.createClient+")" : "MISSING"),
+            "js/config.js (window.AdminConfig)":
+              typeof window.AdminConfig +
+              (window.AdminConfig ? " (url="+(window.AdminConfig.SUPABASE_URL||"none").slice(0,40)+")" : " MISSING"),
+            "js/auth.js (window.AdminAuth)":
+              typeof window.AdminAuth + " MISSING",
+            "user agent": navigator.userAgent,
+            "location": location.href,
+          };
+          var html = '<div style="padding:40px;font-family:sans-serif;line-height:1.6;">' +
             '<h2>登录页加载失败</h2>' +
-            '<p>auth.js 没加载到。请按 <b>Cmd/Ctrl + Shift + R</b> 强刷一下。</p>' +
-            '<p>如果反复出现，请打开开发者工具 (F12) → Network 标签 → 刷新 → ' +
-            '看 <code>auth.js</code> 是不是 200 + 类型为 script。</p>' +
+            '<p>下面是实际的脚本加载情况，请把这一段截图发给开发者：</p>' +
+            '<pre style="background:#fee;padding:12px;border-radius:8px;white-space:pre-wrap;font-size:12px;">';
+          for (var k in diag) html += k + ": " + diag[k] + "\n";
+          html += '</pre>' +
+            '<p>试一下：<b>Cmd/Ctrl + Shift + R</b> 硬刷；或开发者工具 (F12) → ' +
+            'Network 标签 → 勾上 Disable cache → 刷新。</p>' +
             '</div>';
+          document.body.innerHTML = html;
           return;
         }
 
