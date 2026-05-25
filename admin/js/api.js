@@ -60,6 +60,23 @@
     if (error) throw new Error(error.message);
   }
 
+  // ─── Boards (上架/下架/改名) ─── admin RLS 允许 admin 直接 update presets ──
+  async function setPresetVisibility(id, visibility) {
+    const { error } = await supa
+      .from("presets")
+      .update({ visibility, updated_at: new Date().toISOString() })
+      .eq("id", id);
+    if (error) throw new Error(error.message);
+  }
+
+  async function renamePreset(id, name) {
+    const { error } = await supa
+      .from("presets")
+      .update({ name, updated_at: new Date().toISOString() })
+      .eq("id", id);
+    if (error) throw new Error(error.message);
+  }
+
   // ─── Users ───
   const listUsers = ({ search = null, limit = 50, offset = 0 } = {}) =>
     rpc("admin_list_users", {
@@ -182,6 +199,8 @@
     rejectPreset,
     deletePreset,
     getPresetById,
+    setPresetVisibility,
+    renamePreset,
     // users
     listUsers,
     userDetail,

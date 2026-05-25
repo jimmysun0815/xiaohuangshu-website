@@ -125,6 +125,7 @@
   const TAB_TITLES = {
     overview: "概览",
     presets: "棋盘审核",
+    boards: "棋盘管理",
     users: "用户",
     subs: "订阅 & 营收",
     reports: "举报",

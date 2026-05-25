@@ -143,10 +143,6 @@ window.AdminTabs.presets = {
 
     function showDetail(p) {
       const body = document.createElement("div");
-      const dataPretty = (() => {
-        try { return JSON.stringify(p.data, null, 2); }
-        catch (_) { return String(p.data); }
-      })();
       body.innerHTML = `
         <div class="section-title">基础信息</div>
         <table class="data-table">
@@ -165,9 +161,11 @@ window.AdminTabs.presets = {
           </tbody>
         </table>
 
-        <div class="section-title">data (BoardPreset / RoulettePreset)</div>
-        <pre class="code-block">${utils.escape(dataPretty)}</pre>
+        <div class="section-title">内容</div>
       `;
+      // 用统一渲染器把 chess / roulette 的 data 拆成可读卡片
+      const r = window.AdminPresetRenderer.render(p);
+      body.appendChild(r);
 
       const foot = document.createElement("div");
       foot.style.gap = "8px";
