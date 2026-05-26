@@ -77,6 +77,9 @@
     if (error) throw new Error(error.message);
   }
 
+  const setPlayAccess = (id, access) =>
+    rpc("admin_set_play_access", { p_id: id, p_access: access });
+
   // ─── Users ───
   const listUsers = ({ search = null, limit = 50, offset = 0 } = {}) =>
     rpc("admin_list_users", {
@@ -201,6 +204,7 @@
     getPresetById,
     setPresetVisibility,
     renamePreset,
+    setPlayAccess,
     // users
     listUsers,
     userDetail,

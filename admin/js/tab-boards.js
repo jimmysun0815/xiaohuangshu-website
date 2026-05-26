@@ -1,24 +1,16 @@
-// 棋盘管理 tab —— 把所有游戏的现存棋盘汇总，做上架 / 下架 / 改名 / 删除。
+// 棋盘管理 tab —— 把所有游戏的现存棋盘汇总，做上架 / 可用性 / 改名 / 删除。
 //
-// 跟「棋盘审核」tab 的区别：
-//   - 审核 tab 默认筛 onlyUser + status=pending，重点是新内容审核
-//   - 管理 tab 默认显示「线上能看到的全部棋盘」(approved + 任意 visibility)，
-//     重点是已经上线内容的运营动作（暂时下架 / 改个名）
-//
-// 操作：
-//   - 上架：调 admin_approve_preset → status='approved' + visibility='public'
-//   - 下架：直接 update visibility='unlisted' (保留分享码可用，但不进广场)
-//   - 完全屏蔽：直接 update visibility='private' (只 owner 可见)
-//   - 改名：直接 update presets.name
-//   - 删除：硬删
-//   - 点名字 → 模态框看完整内容（用统一渲染器，跟审核 tab 共用）
+// 可见性规则（简化）：
+//   - 上架 = approved + public → 全员可见（广场 / App 云端列表）
+//   - play_access = free    → 全员可用
+//   - play_access = premium → 全员可见，但下载/选用需会员
 window.AdminTabs.boards = {
   async render(c, { api, utils }) {
     const state = {
-      gameType: "",   // chess / roulette / 全部
-      visibility: "", // public / unlisted / private / 全部
-      status: "approved", // 默认看「上线状态」的，业务上比较关心
-      onlyUser: false,    // boards 管理默认含官方
+      gameType: "",
+      visibility: "",
+      status: "approved",
+      onlyUser: false,
       offset: 0,
       limit: 100,
       total: 0,
@@ -68,10 +60,13 @@ window.AdminTabs.boards = {
     $("#bStatus").value = state.status;
     $("#bScope").value = state.onlyUser ? "user" : "all";
 
+    function playAccessLabel(v) {
+      return v === "free" ? "全员可用" : "会员可用";
+    }
+
     async function reload() {
       $("#bTable").innerHTML = '<div class="empty">加载中…</div>';
       try {
-        // 复用 listPresets, 但走更宽的过滤
         let q = api.supa
           .from("presets")
           .select("*", { count: "exact" })
@@ -86,7 +81,6 @@ window.AdminTabs.boards = {
         state.total = count || 0;
         const rows = data || [];
 
-        // 拉 owner email
         const ownerIds = [...new Set(rows.map((r) => r.owner_id).filter(Boolean))];
         const emails = await api.lookupEmails(ownerIds);
 
@@ -112,12 +106,11 @@ window.AdminTabs.boards = {
             <th>名字</th>
             <th>游戏</th>
             <th>作者</th>
-            <th>能见度</th>
-            <th>状态</th>
-            <th>分享码</th>
+            <th>上架</th>
+            <th>可用性</th>
             <th>下载</th>
             <th>上传</th>
-            <th style="min-width:280px;">操作</th>
+            <th style="min-width:220px;">操作</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -129,29 +122,43 @@ window.AdminTabs.boards = {
           ? utils.escape(emails[p.owner_id] || p.owner_id.slice(0, 8))
           : '<span class="muted">官方</span>';
         const isLive = p.status === "approved" && p.visibility === "public";
+        const access = p.play_access || "premium";
         tr.innerHTML = `
           <td><a href="#" data-act="view">${utils.escape(p.name || "(未命名)")}</a></td>
           <td>${utils.escape(p.game_type)}</td>
           <td class="mono">${ownerLabel}</td>
-          <td><span class="tag tag-${p.visibility}">${p.visibility}</span></td>
-          <td><span class="tag tag-${p.status}">${p.status}</span></td>
-          <td class="mono">${utils.escape(p.share_code || "—")}</td>
+          <td>
+            <label class="toggle" title="${isLive ? "已上架，点击下架" : "未上架，点击上架"}">
+              <input type="checkbox" data-act="toggle-live" ${isLive ? "checked" : ""}>
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+              <span class="toggle-label">${isLive ? "上架" : "下架"}</span>
+            </label>
+          </td>
+          <td>
+            <select class="select select-sm" data-act="play-access" ${isLive ? "" : "disabled"}>
+              <option value="free" ${access === "free" ? "selected" : ""}>全员可用</option>
+              <option value="premium" ${access === "premium" ? "selected" : ""}>会员可用</option>
+            </select>
+          </td>
           <td>${p.download_count ?? 0}</td>
           <td class="no-wrap">${utils.escape(utils.fmtDate(p.created_at))}</td>
           <td class="actions">
-            ${isLive
-              ? '<button class="btn btn-warn" data-act="unlist">下架</button>'
-              : '<button class="btn btn-success" data-act="publish">上架</button>'}
             <button class="btn" data-act="rename">改名</button>
-            <button class="btn btn-warn" data-act="hide">屏蔽</button>
             <button class="btn btn-danger" data-act="delete">删除</button>
           </td>
         `;
-        tr.querySelectorAll("[data-act]").forEach((b) => {
-          b.addEventListener("click", (e) => {
-            e.preventDefault();
-            handleAction(b.dataset.act, p);
-          });
+        tr.querySelectorAll("[data-act]").forEach((el) => {
+          const act = el.dataset.act;
+          if (act === "toggle-live") {
+            el.addEventListener("change", () => handleToggle(el, p));
+          } else if (act === "play-access") {
+            el.addEventListener("change", () => handlePlayAccess(el, p));
+          } else {
+            el.addEventListener("click", (e) => {
+              e.preventDefault();
+              handleAction(act, p);
+            });
+          }
         });
         tb.appendChild(tr);
       });
@@ -159,22 +166,41 @@ window.AdminTabs.boards = {
       $("#bTable").appendChild(tbl);
     }
 
+    async function handleToggle(input, p) {
+      const target = input.checked;
+      input.disabled = true;
+      try {
+        if (target) {
+          await api.approvePreset(p.id);
+        } else {
+          await api.setPresetVisibility(p.id, "unlisted");
+        }
+        await reload();
+      } catch (err) {
+        input.checked = !target;
+        input.disabled = false;
+        utils.toast(err.message);
+      }
+    }
+
+    async function handlePlayAccess(select, p) {
+      const access = select.value;
+      const prev = p.play_access || "premium";
+      select.disabled = true;
+      try {
+        await api.setPlayAccess(p.id, access);
+        await reload();
+      } catch (err) {
+        select.value = prev;
+        select.disabled = false;
+        utils.toast(err.message);
+      }
+    }
+
     async function handleAction(act, p) {
       try {
         if (act === "view") {
           showDetail(p);
-        } else if (act === "publish") {
-          if (!utils.confirm(`上架「${p.name}」？将设为 public + approved。`)) return;
-          await api.approvePreset(p.id);
-          await reload();
-        } else if (act === "unlist") {
-          if (!utils.confirm(`下架「${p.name}」？广场将不再展示，但已分享的人凭分享码仍可读取。`)) return;
-          await api.setPresetVisibility(p.id, "unlisted");
-          await reload();
-        } else if (act === "hide") {
-          if (!utils.confirm(`完全屏蔽「${p.name}」？分享码也将失效，仅作者本人可见。`)) return;
-          await api.setPresetVisibility(p.id, "private");
-          await reload();
         } else if (act === "rename") {
           const newName = utils.prompt("新名字：", p.name || "");
           if (newName == null || !newName.trim()) return;
@@ -192,6 +218,7 @@ window.AdminTabs.boards = {
 
     function showDetail(p) {
       const body = document.createElement("div");
+      const access = p.play_access || "premium";
       body.innerHTML = `
         <div class="section-title">基础信息</div>
         <table class="data-table">
@@ -201,6 +228,7 @@ window.AdminTabs.boards = {
             <tr><td>类型</td><td>${utils.escape(p.game_type)}</td></tr>
             <tr><td>能见度</td><td>${utils.escape(p.visibility)}</td></tr>
             <tr><td>状态</td><td>${utils.escape(p.status)}</td></tr>
+            <tr><td>可用性</td><td>${utils.escape(playAccessLabel(access))} (${utils.escape(access)})</td></tr>
             <tr><td>分享码</td><td class="mono">${utils.escape(p.share_code || "—")}</td></tr>
             <tr><td>下载量</td><td>${p.download_count ?? 0}</td></tr>
             <tr><td>上传时间</td><td>${utils.escape(utils.fmtDate(p.created_at))}</td></tr>

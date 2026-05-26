@@ -110,6 +110,13 @@ a { color: inherit; }
   border-color: transparent;
 }
 
+.select-sm {
+  width: auto;
+  font-size: 0.82rem;
+  padding: 4px 8px;
+  min-width: 110px;
+}
+
 .textarea { min-height: 90px; resize: vertical; }
 
 .btn {
@@ -448,6 +455,58 @@ table.data-table td.actions .btn { padding: 5px 10px; font-size: 0.78rem; }
 .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85em; }
 .no-wrap { white-space: nowrap; }
 .flex { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+/* ─── toggle 开关 (棋盘管理上下架) ─────────────────────────────────── */
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.85rem;
+}
+.toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.toggle-track {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  background: var(--border);
+  border-radius: 999px;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  transition: left 0.15s;
+}
+.toggle input:checked + .toggle-track {
+  background: var(--success);
+}
+.toggle input:checked + .toggle-track .toggle-thumb {
+  left: 18px;
+}
+.toggle input:disabled + .toggle-track {
+  opacity: 0.5;
+  cursor: wait;
+}
+.toggle-label {
+  color: var(--muted);
+  min-width: 32px;
+}
+.toggle input:checked ~ .toggle-label {
+  color: var(--success);
+}
 
 .section-title {
   margin: 18px 0 8px;
