@@ -134,7 +134,10 @@ window.AdminTabs.codes = {
       body.innerHTML = `
         <div class="form-row">
           <label>code <span class="mono">(会自动转大写)</span></label>
-          <input class="input" id="nCode" placeholder="例：LIFE-2026-ZHANGSAN" autofocus />
+          <div style="display:flex; gap:8px;">
+            <input class="input" id="nCode" autofocus style="flex:1;" />
+            <button type="button" class="btn" id="nRand" title="随机生成 10 位大写字母 + 数字">随机</button>
+          </div>
         </div>
         <div class="form-row">
           <label>tier</label>
@@ -167,6 +170,23 @@ window.AdminTabs.codes = {
       const rowDays = body.querySelector("#rowDays");
       tierSel.addEventListener("change", () => {
         rowDays.style.display = tierSel.value === "monthly" ? "" : "none";
+      });
+
+      // 「随机」按钮：用 crypto.getRandomValues 生成 10 位 [A-Z0-9]，
+      // 避免 Math.random 的可预测性
+      const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; // 36 chars
+      const LEN = 10;
+      function randomCode() {
+        const arr = new Uint32Array(LEN);
+        crypto.getRandomValues(arr);
+        let out = "";
+        for (let i = 0; i < LEN; i++) {
+          out += ALPHABET[arr[i] % ALPHABET.length];
+        }
+        return out;
+      }
+      body.querySelector("#nRand").addEventListener("click", () => {
+        body.querySelector("#nCode").value = randomCode();
       });
 
       const foot = document.createElement("div");
