@@ -130,6 +130,7 @@
     subs: "订阅 & 营收",
     reports: "举报",
     config: "App Config",
+    codes: "兑换码",
     events: "RC 事件流",
   };
 

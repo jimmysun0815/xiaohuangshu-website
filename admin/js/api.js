@@ -188,6 +188,44 @@
     return data || [];
   }
 
+  // ─── Invite Codes (兑换码) ───
+  const listInviteCodes = ({
+    search = null,
+    limit = 100,
+    offset = 0,
+  } = {}) =>
+    rpc("admin_list_invite_codes", {
+      p_search: search,
+      p_limit: limit,
+      p_offset: offset,
+    });
+
+  const createInviteCode = ({
+    code,
+    tier,
+    valid_days = null,
+    max_uses = 1,
+    expires_at = null,
+    notes = null,
+  }) =>
+    rpc("admin_create_invite_code", {
+      p_code: code,
+      p_tier: tier,
+      p_valid_days: valid_days,
+      p_max_uses: max_uses,
+      p_expires_at: expires_at,
+      p_notes: notes,
+    });
+
+  const deleteInviteCode = (code) =>
+    rpc("admin_delete_invite_code", { p_code: code });
+
+  const expireInviteCode = (code) =>
+    rpc("admin_expire_invite_code", { p_code: code });
+
+  const listRedemptionsForCode = (code) =>
+    rpc("admin_list_redemptions_for_code", { p_code: code });
+
   window.AdminApi = {
     supa,
     rpc,
@@ -225,5 +263,11 @@
     // rc events
     listRcEvents,
     recentRcEvents,
+    // invite codes
+    listInviteCodes,
+    createInviteCode,
+    deleteInviteCode,
+    expireInviteCode,
+    listRedemptionsForCode,
   };
 })();
