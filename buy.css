@@ -1,0 +1,347 @@
+/* buy.html 页面专用样式（追加在 styles.css 之上）。
+   尽量复用 :root 里的 --bg / --surface / --primary 等 token，跟主站视觉一致。 */
+
+.buy-container {
+  max-width: 560px;
+  padding-top: 28px;
+  padding-bottom: 48px;
+}
+
+.buy-step {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  padding: 28px 24px;
+  margin-bottom: 24px;
+}
+
+.buy-step h1 {
+  margin: 0 0 12px;
+  font-size: 22px;
+  letter-spacing: -0.01em;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+/* ─── 套餐网格 ─── */
+.plans-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin: 16px 0 24px;
+}
+
+.plans-loading {
+  padding: 32px 0;
+  text-align: center;
+  color: var(--muted);
+}
+
+.plan-card {
+  border: 2px solid var(--border);
+  background: var(--bg);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.05s;
+}
+
+.plan-card:hover {
+  border-color: var(--primary);
+}
+
+.plan-card.selected {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 8%, var(--surface));
+}
+
+.plan-card:active {
+  transform: scale(0.99);
+}
+
+.plan-card .plan-name {
+  flex: 1;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.plan-card .plan-desc {
+  flex: 2;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.plan-card .plan-price {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--primary);
+  white-space: nowrap;
+}
+
+.plan-card .plan-price .plan-price-unit {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-left: 2px;
+}
+
+/* 推荐徽章 */
+.plan-card .plan-tag {
+  position: absolute;
+  top: -8px;
+  right: 12px;
+  background: var(--primary);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 8px;
+  letter-spacing: 0.05em;
+}
+
+.plan-card { position: relative; }
+
+/* ─── 渠道 tab ─── */
+.channel-section {
+  margin: 20px 0 12px;
+}
+
+.channel-section h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 8px;
+  color: var(--muted);
+}
+
+.channel-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.channel-tab {
+  border: 2px solid var(--border);
+  background: var(--bg);
+  border-radius: 12px;
+  padding: 10px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  transition: border-color 0.15s;
+}
+
+.channel-tab:hover {
+  border-color: var(--primary);
+}
+
+.channel-tab.active {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 8%, var(--surface));
+}
+
+.channel-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  background: #1677ff;
+  color: white;
+  font-weight: 800;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.channel-icon-wx {
+  background: #07c160;
+}
+
+/* ─── 联系方式 ─── */
+.contact-section {
+  margin: 16px 0;
+}
+
+.contact-section label {
+  display: block;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.contact-section input {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 15px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.contact-section input:focus {
+  border-color: var(--primary);
+}
+
+/* ─── 主按钮 ─── */
+.btn {
+  display: inline-block;
+  border: none;
+  border-radius: 12px;
+  padding: 14px 24px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  transition: background 0.15s, opacity 0.15s, transform 0.05s;
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--primary-hover);
+}
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.btn-pay {
+  width: 100%;
+  margin-top: 12px;
+  padding: 16px;
+  font-size: 17px;
+}
+
+.pay-error {
+  margin: 10px 0 0;
+  color: #d34c3e;
+  font-size: 14px;
+}
+
+.legal-note {
+  margin-top: 20px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.legal-note a {
+  color: var(--primary);
+}
+
+.legal-note code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  background: var(--bg);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+/* ─── 等待状态 ─── */
+.buy-step-wait,
+.buy-step-done,
+.buy-step-fail {
+  text-align: center;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 24px auto;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── 成功状态 ─── */
+.success-badge {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 12px;
+  background: #2bcb55;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  font-weight: 800;
+}
+
+.code-display {
+  margin: 24px 0;
+  padding: 20px 16px;
+  background: var(--bg);
+  border: 2px dashed var(--primary);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.code-display code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: var(--primary);
+  user-select: all;
+  word-break: break-all;
+}
+
+.code-display .btn {
+  padding: 10px 22px;
+  font-size: 14px;
+}
+
+.next-steps {
+  text-align: left;
+  margin: 20px 0;
+  padding-left: 22px;
+  color: var(--text);
+  line-height: 1.8;
+  font-size: 14px;
+}
+
+.next-steps li {
+  margin-bottom: 4px;
+}

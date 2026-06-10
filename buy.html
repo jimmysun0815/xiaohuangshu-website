@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>会员订阅 · 多人成行</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./buy.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="./index.html">多人成行 Naught Game</a>
+      </div>
+    </header>
+
+    <main class="container buy-container">
+      <!-- ─── 状态 A：选套餐 ─── -->
+      <section id="stepPick" class="buy-step buy-step-pick">
+        <h1>选择会员套餐</h1>
+        <p class="muted">付款成功后会立即生成兑换码，在 App「会员中心 → 输入兑换码」激活。</p>
+
+        <div id="plansGrid" class="plans-grid">
+          <!-- 由 buy.js 渲染 -->
+          <div class="plans-loading">加载中…</div>
+        </div>
+
+        <div class="channel-section">
+          <h3>支付方式</h3>
+          <div class="channel-tabs" role="radiogroup">
+            <button class="channel-tab active" data-channel="alipay" role="radio" aria-checked="true">
+              <span class="channel-icon">支</span>
+              <span>支付宝</span>
+            </button>
+            <button class="channel-tab" data-channel="wxpay" role="radio" aria-checked="false">
+              <span class="channel-icon channel-icon-wx">微</span>
+              <span>微信支付</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="contact-section">
+          <label for="contactInput">联系方式（可选，丢码找回用）</label>
+          <input
+            id="contactInput"
+            type="text"
+            placeholder="邮箱或微信号，可不填"
+            maxlength="80"
+          />
+        </div>
+
+        <button id="payBtn" class="btn btn-primary btn-pay" disabled>
+          请先选择套餐
+        </button>
+
+        <p id="payError" class="pay-error" hidden></p>
+
+        <p class="legal-note">
+          点击「立即购买」即表示同意 <a href="./privacy.html">隐私政策</a>。
+          兑换码不记名、不退款；如有疑问请联系
+          <a href="mailto:privacy@worksonmymachine.com">privacy@worksonmymachine.com</a>。
+        </p>
+      </section>
+
+      <!-- ─── 状态 B：跳转支付中 / Polling ─── -->
+      <section id="stepWait" class="buy-step buy-step-wait" hidden>
+        <h1>等待支付结果</h1>
+        <div class="spinner" aria-hidden="true"></div>
+        <p>支付完成后这里会自动跳到下一步。</p>
+        <p class="muted">如果你已经在支付宝/微信里完成支付，请稍候…</p>
+        <p id="waitTimer" class="muted"></p>
+        <button id="cancelWaitBtn" class="btn btn-secondary">取消，回到选套餐</button>
+      </section>
+
+      <!-- ─── 状态 C：支付成功，展示兑换码 ─── -->
+      <section id="stepDone" class="buy-step buy-step-done" hidden>
+        <div class="success-badge" aria-hidden="true">✓</div>
+        <h1>支付成功</h1>
+        <p class="muted">这是你的专属兑换码。复制后到 App 内激活会员：</p>
+
+        <div class="code-display">
+          <code id="codeText">XXXXXXXXXX</code>
+          <button id="copyCodeBtn" class="btn btn-secondary">复制</button>
+        </div>
+
+        <ol class="next-steps">
+          <li>打开 App「多人成行」</li>
+          <li>底部「会员中心」 tab</li>
+          <li>滚到底部，点击「输入兑换码」</li>
+          <li>粘贴上面的兑换码，点「兑换」即可</li>
+        </ol>
+
+        <p class="legal-note">
+          兑换码只能使用一次，请妥善保存。如丢失请联系
+          <a href="mailto:privacy@worksonmymachine.com">privacy@worksonmymachine.com</a> 并提供订单号
+          <code id="orderRefDisplay"></code>。
+        </p>
+      </section>
+
+      <!-- ─── 状态 D：失败 / 过期 ─── -->
+      <section id="stepFail" class="buy-step buy-step-fail" hidden>
+        <h1 id="failTitle">订单状态异常</h1>
+        <p id="failMessage" class="muted"></p>
+        <button id="restartBtn" class="btn btn-primary">重新购买</button>
+        <p class="legal-note">
+          如果你已经完成支付但这里没显示成功，请联系
+          <a href="mailto:privacy@worksonmymachine.com">privacy@worksonmymachine.com</a>
+          并提供订单号 <code id="failOrderRef"></code>。
+        </p>
+      </section>
+    </main>
+
+    <footer class="container page-footer">
+      <p>
+        © 2026 多人成行 Naught Game · Works On My Machine ·
+        <a class="nav-link" href="./privacy.html">隐私政策</a>
+      </p>
+    </footer>
+
+    <!-- supabase-js 用 admin 那份本地副本，避免大陆访问 CDN 慢 -->
+    <script src="./admin/vendor/supabase.min.js"></script>
+    <script src="./buy.js?v=1"></script>
+  </body>
+</html>
