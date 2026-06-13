@@ -123,14 +123,32 @@
     });
   }
 
+  // 简易 email 校验：标准 form-level 的 HTML5 email type 会兜底，这里
+  // 再做一次主动校验避免空 / 误格式溜过去。匹配规则跟 HTML5 一致：
+  //   - 必须含 @
+  //   - @ 前后都有内容
+  //   - 顶级域含至少一个 .
+  function isValidEmail(s) {
+    if (!s || typeof s !== "string") return false;
+    // 跟 HTML5 input[type=email] 一致的简化版正则
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
+  }
+
   async function submitPay() {
     if (!selectedPlanId) return;
     const btn = $("payBtn");
-    btn.disabled = true;
-    btn.textContent = "正在创建订单…";
     clearPayError();
 
-    const contact = $("contactInput").value.trim() || null;
+    const contact = $("contactInput").value.trim();
+    if (!isValidEmail(contact)) {
+      showPayError("请填写正确的邮箱地址 —— 激活码会发到这里");
+      $("contactInput").focus();
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = "正在创建订单…";
+
     try {
       const res = await fetch(FN("payment-create"), {
         method: "POST",

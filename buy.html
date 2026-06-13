@@ -45,13 +45,16 @@
         </div>
 
         <div class="contact-section">
-          <label for="contactInput">联系方式（可选，丢码找回用）</label>
+          <label for="contactInput">邮箱 <span class="required-mark">*</span></label>
           <input
             id="contactInput"
-            type="text"
-            placeholder="邮箱或微信号，可不填"
-            maxlength="80"
+            type="email"
+            placeholder="例如 you@example.com"
+            maxlength="120"
+            required
+            autocomplete="email"
           />
+          <p class="field-hint">支付完成后我们会把激活码 + 订单收据发到这个邮箱，请填写常用邮箱。</p>
         </div>
 
         <button id="payBtn" class="btn btn-primary btn-pay" disabled>
