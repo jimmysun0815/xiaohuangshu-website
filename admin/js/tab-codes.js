@@ -15,6 +15,25 @@
 window.AdminTabs.codes = {
   async render(c, { api, utils }) {
     c.innerHTML = `
+      <!-- ─── Apple 合规开关 ──────────────────────────────────────────── -->
+      <div class="card" id="promoSwitchCard">
+        <div style="display:flex; align-items:flex-start; gap:14px;">
+          <div style="flex:1; min-width:0;">
+            <h3 style="margin:0 0 6px;">App 内「输入兑换码」入口</h3>
+            <div id="promoSwitchStatus" class="muted" style="line-height:1.55; font-size:13.5px;">
+              加载中…
+            </div>
+            <div class="muted" style="margin-top:8px; font-size:12.5px; line-height:1.55;">
+              ⚠️ <b>提交 Apple 审核前务必关掉</b>。Apple 3.1.1 不允许 App 内出现"非 IAP 渠道激活会员"的暗示，1.0(14) 被拒就是这条。
+              审核通过后再开，让用户能看到入口。后端兑换 RPC + 网站购买流程不受这个开关影响。
+            </div>
+          </div>
+          <div>
+            <button class="btn" id="promoSwitchBtn" disabled>—</button>
+          </div>
+        </div>
+      </div>
+
       <div class="card">
         <div class="toolbar">
           <input
@@ -336,6 +355,67 @@ window.AdminTabs.codes = {
       }
     }
 
+    // ─── App 内入口开关 ─────────────────────────────────────────────────
+    // 复用 api.listAppConfig / api.upsertAppConfig（既有 App Config tab 用的）。
+    // 这里只挑 enable_promo_codes 一项呈现成 ON/OFF 按钮，避免 admin 去
+    // 翻 App Config tab 手动改 jsonb 容易出错。
+    const PROMO_KEY = "enable_promo_codes";
+    let promoCurrent = false;
+    let promoBusy = false;
+
+    function renderPromoSwitch() {
+      const status = $("#promoSwitchStatus");
+      const btn = $("#promoSwitchBtn");
+      if (promoCurrent) {
+        status.innerHTML =
+          '<b style="color:var(--success);">已开启</b> · App 用户能看到「输入兑换码」和「会员激活说明」入口';
+        btn.textContent = "关闭";
+        btn.className = "btn btn-danger";
+      } else {
+        status.innerHTML =
+          '<b style="color:var(--warn);">已关闭</b> · App 内不显示任何兑换码相关入口（提交 Apple 时的安全态）';
+        btn.textContent = "开启";
+        btn.className = "btn btn-primary";
+      }
+      btn.disabled = promoBusy;
+    }
+
+    async function loadPromoSwitch() {
+      try {
+        const rows = await api.listAppConfig();
+        const row = (rows || []).find((r) => r.key === PROMO_KEY);
+        // 数据库可能存的是 true / "true" / 字符串 jsonb，做一下兜底
+        promoCurrent = row && (row.value === true || row.value === "true");
+      } catch (e) {
+        $("#promoSwitchStatus").textContent = "加载失败：" + (e.message || e);
+        return;
+      }
+      renderPromoSwitch();
+    }
+
+    async function togglePromoSwitch() {
+      const next = !promoCurrent;
+      const confirmMsg = next
+        ? "确认开启 App 内兑换码入口？\n\n如果当前提交给 Apple 的版本还在审核中，请等审核通过后再开。"
+        : "确认关闭 App 内兑换码入口？\n\n关闭后所有 App 用户都看不到「输入兑换码」按钮。后端兑换 RPC 仍可用，已激活的会员不受影响。";
+      if (!utils.confirm(confirmMsg)) return;
+
+      promoBusy = true;
+      renderPromoSwitch();
+      try {
+        await api.upsertAppConfig(PROMO_KEY, next);
+        promoCurrent = next;
+        utils.toast(next ? "已开启" : "已关闭");
+      } catch (e) {
+        utils.toast("更新失败：" + (e.message || e));
+      } finally {
+        promoBusy = false;
+        renderPromoSwitch();
+      }
+    }
+
+    $("#promoSwitchBtn").addEventListener("click", togglePromoSwitch);
+
     // ─── 事件绑定 ────────────────────────────────────────────────────────
     $("#codesRefresh").addEventListener("click", reload);
     $("#codesNew").addEventListener("click", newCode);
@@ -344,6 +424,8 @@ window.AdminTabs.codes = {
       searchDebounce = setTimeout(reload, 300);
     });
 
+    // 主表跟开关并行加载
+    loadPromoSwitch();
     await reload();
   },
 };
