@@ -6,7 +6,9 @@
    ──────────────────────────────────────────────────────────────────────── */
 
 :root {
-  color-scheme: light dark;
+  /* 设计源（duoren_chengxing/client/src/index.css）暗色是 `.dark` 类手动切的，
+     不跟系统暗色偏好走。这里也保持纯亮色，不写 @media (prefers-color-scheme)。 */
+  color-scheme: light;
 
   /* ─── Premium warm palette（沿用原设计 oklch 色值） ─── */
   --background: oklch(0.998 0 0);
@@ -42,28 +44,6 @@
   --shadow: 0 4px 14px rgb(0 0 0 / 0.06);
   --shadow-lg: 0 10px 30px rgb(0 0 0 / 0.08);
   --shadow-xl: 0 20px 40px rgb(0 0 0 / 0.10);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: oklch(0.12 0.01 286);
-    --foreground: oklch(0.92 0.01 65);
-    --card: oklch(0.18 0.01 286);
-    --card-foreground: oklch(0.92 0.01 65);
-    --secondary: oklch(0.22 0.01 286);
-    --secondary-foreground: oklch(0.75 0.01 65);
-    --muted: oklch(0.28 0.01 286);
-    --muted-foreground: oklch(0.7 0.02 286);
-    --accent: oklch(0.7 0.23 32);
-    --accent-foreground: oklch(0.98 0 0);
-    --primary: oklch(0.7 0.23 32);
-    --primary-foreground: oklch(0.98 0 0);
-    --border: oklch(1 0 0 / 12%);
-    --ring: oklch(0.7 0.23 32);
-    --shadow: 0 4px 14px rgb(0 0 0 / 0.4);
-    --shadow-lg: 0 10px 30px rgb(0 0 0 / 0.5);
-    --shadow-xl: 0 20px 40px rgb(0 0 0 / 0.55);
-  }
 }
 
 * {
