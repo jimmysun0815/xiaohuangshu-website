@@ -169,18 +169,8 @@ p { margin: 0; }
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(
-    135deg,
-    var(--accent) 0%,
-    color-mix(in srgb, var(--accent) 70%, var(--foreground)) 100%
-  );
-  color: var(--accent-foreground);
-  font-weight: 800;
-  font-size: 1.1rem;
-  letter-spacing: -0.04em;
+  object-fit: cover;
+  display: inline-block;
   box-shadow: var(--shadow);
 }
 
@@ -302,22 +292,12 @@ p { margin: 0; }
 }
 
 .hero-logo {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: inline-block;
   width: 96px;
   height: 96px;
   margin-bottom: 1.5rem;
   border-radius: var(--radius-2xl);
-  background: linear-gradient(
-    135deg,
-    var(--accent) 0%,
-    color-mix(in srgb, var(--accent) 70%, var(--foreground)) 100%
-  );
-  color: var(--accent-foreground);
-  font-weight: 800;
-  font-size: 2.25rem;
-  letter-spacing: -0.04em;
+  object-fit: cover;
   box-shadow: var(--shadow-xl);
 }
 
@@ -325,7 +305,6 @@ p { margin: 0; }
   .hero-logo {
     width: 128px;
     height: 128px;
-    font-size: 3rem;
   }
 }
 
@@ -480,7 +459,9 @@ p { margin: 0; }
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
   padding: 1.5rem;
-  display: block;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   transition: border-color 0.3s, box-shadow 0.3s;
 }
 
@@ -493,7 +474,8 @@ p { margin: 0; }
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-bottom: 0.75rem;
+  margin-bottom: 1rem;
+  flex: 1;
 }
 
 .download-logo {
