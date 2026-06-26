@@ -15,6 +15,45 @@
 
   const FN = (name) => `${SUPABASE_URL}/functions/v1/${name}`;
 
+  // ─── 静态 UI 元数据（设计稿要求的卖点列表 + popular 徽章规则） ─────
+  // plans 列表是从 Supabase 拉的，但卖点 / popular 等纯展示信息不入库 ——
+  // 写在前端、跟 plan.id 关联。如果新增 plan id 这里要补对应条目。
+  const PLAN_UI_META = {
+    monthly_30d: {
+      popular: false,
+      cta: "购买月会员",
+      features: [
+        "解锁全部高级棋盘",
+        "无限创建自定义棋盘",
+        "解锁全部主题",
+        "优先体验新功能",
+      ],
+    },
+    yearly_365: {
+      popular: true,
+      badge: "最受欢迎",
+      cta: "购买年会员",
+      features: [
+        "包含月会员全部权益",
+        "相比月度节省超 30%",
+        "解锁年度限定主题",
+        "优先邮件客服支持",
+        "一次激活一年放心用",
+      ],
+    },
+    lifetime: {
+      popular: false,
+      cta: "购买终身会员",
+      features: [
+        "包含年会员全部权益",
+        "一次付费永久使用",
+        "终身解锁未来全部新增内容",
+        "终身限定徽章",
+        "不必再担心续费",
+      ],
+    },
+  };
+
   // ─── 状态 ────────────────────────────────────────────────────────────
   const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -38,15 +77,14 @@
   function fmtPrice(n) {
     const v = Number(n);
     if (!Number.isFinite(v)) return "—";
-    // ¥29.90 / ¥698.00
     return "¥" + v.toFixed(2);
   }
 
-  function shortUnit(plan) {
-    if (plan.tier === "permanent") return "永久";
-    if (plan.valid_days === 30) return "/月";
-    if (plan.valid_days === 365) return "/年";
-    return `/${plan.valid_days}天`;
+  function periodUnit(plan) {
+    if (plan.tier === "permanent") return "/ 永久使用";
+    if (plan.valid_days === 30) return "/ 月";
+    if (plan.valid_days === 365) return "/ 年";
+    return `/ ${plan.valid_days} 天`;
   }
 
   function showPayError(msg) {
@@ -56,6 +94,30 @@
   }
   function clearPayError() {
     $("payError").hidden = true;
+  }
+
+  // sessionStorage 缓存：把当前选中的 plan 信息存起来，从 zhifux 跳回成功
+  // 页面时还能展示「月会员」这类友好文案。key 用 orderId，过期不管，会话
+  // 关闭自动清。
+  function stashOrderPlan(orderId, plan) {
+    try {
+      sessionStorage.setItem(
+        "buy_order_" + orderId,
+        JSON.stringify({
+          display_name: plan.display_name,
+          amount_cny: plan.amount_cny,
+        })
+      );
+    } catch (_) { /* sessionStorage 可能被禁用，忽略 */ }
+  }
+
+  function recallOrderPlan(orderId) {
+    try {
+      const raw = sessionStorage.getItem("buy_order_" + orderId);
+      return raw ? JSON.parse(raw) : null;
+    } catch (_) {
+      return null;
+    }
   }
 
   // ─── 流程 1：选套餐 ──────────────────────────────────────────────────
@@ -82,26 +144,74 @@
     }
     grid.innerHTML = "";
     plans.forEach((p) => {
-      const card = document.createElement("div");
-      card.className = "plan-card";
+      const meta = PLAN_UI_META[p.id] || {};
+      const card = document.createElement("article");
+      card.className = "pricing-card";
+      if (meta.popular) card.classList.add("popular");
       card.dataset.planId = p.id;
-      const tag = p.tier === "permanent" ? '<span class="plan-tag">推荐</span>' : "";
+      card.tabIndex = 0;
+      card.setAttribute("role", "button");
+      card.setAttribute("aria-label", `选择 ${p.display_name}`);
+
+      const badge = meta.popular
+        ? `<span class="pricing-badge">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            ${escapeHtml(meta.badge || "最受欢迎")}
+          </span>`
+        : "";
+
+      const features = (meta.features || []).map(
+        (f) => `<li class="pricing-feature">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>${escapeHtml(f)}</span>
+        </li>`
+      ).join("");
+
+      const cta = meta.cta || "选择此方案";
+
       card.innerHTML = `
-        ${tag}
-        <div class="plan-name">${escapeHtml(p.display_name)}</div>
-        <div class="plan-desc">${escapeHtml(p.description || "")}</div>
-        <div class="plan-price">
-          ${fmtPrice(p.amount_cny)}<span class="plan-price-unit">${escapeHtml(shortUnit(p))}</span>
+        ${badge}
+        <h3>${escapeHtml(p.display_name)}</h3>
+        <p class="pricing-desc">${escapeHtml(p.description || planDefaultDesc(p))}</p>
+        <div class="pricing-price-row">
+          <span class="pricing-price">${fmtPrice(p.amount_cny)}</span>
+          <span class="pricing-period">${escapeHtml(periodUnit(p))}</span>
         </div>
+        <div class="pricing-cta-wrap">
+          <button type="button" class="btn ${meta.popular ? "btn-primary" : "btn-outline"} btn-block plan-select-cta">
+            ${escapeHtml(cta)}
+          </button>
+        </div>
+        <ul class="pricing-features">${features}</ul>
       `;
-      card.addEventListener("click", () => selectPlan(p.id));
+
+      // 整张卡都可点
+      const select = () => selectPlan(p.id);
+      card.addEventListener("click", select);
+      card.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          select();
+        }
+      });
       grid.appendChild(card);
     });
   }
 
+  function planDefaultDesc(plan) {
+    if (plan.tier === "permanent") return "一次解锁，终身使用";
+    if (plan.valid_days === 30) return "适合先短期体验";
+    if (plan.valid_days === 365) return "长期使用最划算";
+    return "";
+  }
+
   function selectPlan(id) {
     selectedPlanId = id;
-    document.querySelectorAll(".plan-card").forEach((c) => {
+    document.querySelectorAll(".pricing-card").forEach((c) => {
       c.classList.toggle("selected", c.dataset.planId === id);
     });
     const btn = $("payBtn");
@@ -123,14 +233,9 @@
     });
   }
 
-  // 简易 email 校验：标准 form-level 的 HTML5 email type 会兜底，这里
-  // 再做一次主动校验避免空 / 误格式溜过去。匹配规则跟 HTML5 一致：
-  //   - 必须含 @
-  //   - @ 前后都有内容
-  //   - 顶级域含至少一个 .
+  // 简易 email 校验：跟 HTML5 input[type=email] 一致的简化版正则
   function isValidEmail(s) {
     if (!s || typeof s !== "string") return false;
-    // 跟 HTML5 input[type=email] 一致的简化版正则
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
   }
 
@@ -154,7 +259,6 @@
         method: "POST",
         headers: {
           "content-type": "application/json",
-          // anon key 作为 Authorization 给 Supabase 默认 gateway 通过
           Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
         },
         body: JSON.stringify({
@@ -170,7 +274,12 @@
         btn.textContent = "立即购买";
         return;
       }
-      // 跳转 zhifux 收银台。zhifux 付完会跳回 PAYMENT_RETURN_URL?order=xxx
+
+      // 把当前选中 plan 缓存进 sessionStorage，方便支付完成跳回时
+      // 成功页能展示「月会员」这种友好文案，不必再请求后端。
+      const plan = plans.find((p) => p.id === selectedPlanId);
+      if (plan && body.order_id) stashOrderPlan(body.order_id, plan);
+
       window.location.href = body.payment_url;
     } catch (e) {
       showPayError("网络错误：" + (e.message || e));
@@ -239,7 +348,6 @@
         return showFail(orderId, "订单已取消", "请重新下单。");
       }
       if (body.status === "not_found") {
-        // 订单不存在：可能 zhifux 返回 URL 上的 order 是别人的（异常）
         stopPolling();
         return showFail(orderId, "找不到订单", "请重新下单。");
       }
@@ -252,22 +360,35 @@
   function showDone(orderId, code) {
     $("codeText").textContent = code;
     $("orderRefDisplay").textContent = orderId;
+
+    // 试着从 sessionStorage 回填套餐 + 金额；拿不到也无伤大雅
+    const stash = recallOrderPlan(orderId);
+    if (stash) {
+      if (stash.display_name) $("orderTierName").textContent = stash.display_name;
+      if (Number.isFinite(Number(stash.amount_cny))) {
+        $("orderAmount").textContent = fmtPrice(stash.amount_cny);
+      }
+    } else {
+      $("orderTierName").textContent = "会员";
+      $("orderAmount").textContent = "—";
+    }
+
     showStep(stepDone);
 
     $("copyCodeBtn").onclick = async () => {
+      const label = $("copyCodeLabel");
       try {
         await navigator.clipboard.writeText(code);
-        $("copyCodeBtn").textContent = "已复制 ✓";
+        label.textContent = "已复制 ✓";
       } catch {
-        // fallback: select + execCommand
         const range = document.createRange();
         range.selectNode($("codeText"));
         window.getSelection().removeAllRanges();
         window.getSelection().addRange(range);
         document.execCommand("copy");
-        $("copyCodeBtn").textContent = "已复制 ✓";
+        label.textContent = "已复制 ✓";
       }
-      setTimeout(() => ($("copyCodeBtn").textContent = "复制"), 2000);
+      setTimeout(() => (label.textContent = "复制激活码"), 2000);
     };
   }
 

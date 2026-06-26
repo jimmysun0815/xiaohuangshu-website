@@ -3,60 +3,198 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>多人成行 Naught Game | 情侣互动游戏</title>
+    <title>多人成行 Naught Game | 升温暖场的互动棋牌游戏</title>
     <meta
       name="description"
-      content="多人成行 Naught Game 是一款面向情侣和亲密好友的互动游戏，主打本地优先、隐私优先，支持可选云同步。"
+      content="多人成行 Naught Game 是一款面向情侣与亲密好友的互动棋牌游戏，主打本地优先、隐私优先。"
     />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
+    <!-- ─── Header ─── -->
     <header class="site-header">
       <div class="container header-inner">
-        <a class="brand" href="./index.html">多人成行 Naught Game</a>
-        <nav aria-label="主导航"></nav>
+        <a class="brand" href="./index.html">
+          <span class="brand-logo" aria-hidden="true">多</span>
+          多人成行
+        </a>
+        <a class="btn btn-primary" href="./buy.html">
+          立即购买
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </a>
       </div>
     </header>
 
-    <main class="container">
-      <section class="hero" aria-labelledby="hero-title">
-        <div class="hero-card">
-          <h1 id="hero-title">给亲密关系一点有趣张力的互动游戏</h1>
-          <p>
-            多人成行是一款面向情侣与亲密好友的线下派对游戏。你可以快速开始挑战，也可以自定义玩法。
-            应用坚持本地优先设计，在不登录的情况下也能完整体验核心内容。
-          </p>
-          <div class="actions">
-            <a class="btn btn-primary" href="./buy.html">立即购买会员</a>
-            <a class="btn btn-secondary" href="#feature-title">了解核心特性</a>
+    <main>
+      <!-- ─── Hero ─── -->
+      <section class="hero">
+        <div class="container">
+          <div class="hero-inner">
+            <div class="hero-logo" aria-hidden="true">多</div>
+            <h1>多人成行</h1>
+            <p class="hero-subtitle">升温暖场的互动棋牌游戏</p>
+            <p class="hero-tagline">
+              专为情侣和亲密好友打造的派对游戏。本地优先、隐私优先，<br />
+              在任何场景轻松开启一段独特的互动体验。
+            </p>
+            <p class="hero-tagline-sub">从破冰到深度互动，多人成行让每一次相聚都更有意义。</p>
+            <div class="hero-actions">
+              <a class="btn btn-primary btn-lg" href="./buy.html">
+                立即购买会员
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </a>
+              <a class="btn btn-outline btn-lg" href="#features">了解核心特性</a>
+            </div>
           </div>
         </div>
       </section>
 
-      <section class="section" aria-labelledby="feature-title">
-        <h2 id="feature-title">核心特性</h2>
-        <div class="feature-grid">
-          <article class="feature-item">
-            <h3>本地优先</h3>
-            <p>大部分游戏数据仅保存在你的设备中，不依赖持续联网即可游玩。</p>
-          </article>
-          <article class="feature-item">
-            <h3>情侣互动</h3>
-            <p>轻松开启两人互动环节，支持更私密、更沉浸的线下游戏体验。</p>
-          </article>
-          <article class="feature-item">
-            <h3>可选云同步</h3>
-            <p>仅当你主动使用登录、订阅或上传等功能时，才会启用云端能力。</p>
-          </article>
+      <!-- ─── Features ─── -->
+      <section id="features" class="section">
+        <div class="container">
+          <div class="section-head">
+            <h2>为什么选择多人成行</h2>
+            <p>简单上手，精心设计，让每一次互动都更有意义。</p>
+          </div>
+          <div class="feature-grid">
+            <article class="feature-card">
+              <div class="feature-icon" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+              </div>
+              <h3>增进感情</h3>
+              <p>精心设计的话题与任务，帮助情侣和亲密好友更深入地了解彼此。</p>
+            </article>
+            <article class="feature-card">
+              <div class="feature-icon" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+              </div>
+              <h3>多人互动</h3>
+              <p>支持双人到多人模式，无论是情侣专属还是好友聚会都能玩得尽兴。</p>
+            </article>
+            <article class="feature-card">
+              <div class="feature-icon" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m12 3-1.9 5.8a2 2 0 0 1-1.287 1.288L3 12l5.8 1.9a2 2 0 0 1 1.288 1.287L12 21l1.9-5.8a2 2 0 0 1 1.287-1.288L21 12l-5.8-1.9a2 2 0 0 1-1.288-1.287Z"></path>
+                  <path d="M5 3v4"></path>
+                  <path d="M19 17v4"></path>
+                  <path d="M3 5h4"></path>
+                  <path d="M17 19h4"></path>
+                </svg>
+              </div>
+              <h3>精心设计</h3>
+              <p>本地优先、隐私优先，你的所有数据默认只保存在你的设备上。</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── Download ─── -->
+      <section class="section" id="download">
+        <div class="container">
+          <div class="section-head">
+            <h2>立即下载</h2>
+            <p>在你常用的设备上开始体验。</p>
+          </div>
+          <div class="download-wrap">
+            <div class="download-grid">
+              <a class="download-card" href="https://apps.apple.com" target="_blank" rel="noopener noreferrer">
+                <div class="download-head">
+                  <div class="download-logo" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="download-name">iOS</div>
+                    <div class="download-store">App Store</div>
+                  </div>
+                </div>
+                <p class="download-desc">支持 iPhone 和 iPad，iOS 14 及以上版本。</p>
+                <span class="download-action">
+                  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                  下载 iOS 版
+                  <svg class="icon arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </span>
+              </a>
+
+              <a class="download-card" href="https://play.google.com" target="_blank" rel="noopener noreferrer">
+                <div class="download-head">
+                  <div class="download-logo" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                      <path fill="#34A853" d="M3.609 1.814 13.792 12 3.609 22.186a1.992 1.992 0 0 1-.61-1.43V3.244c0-.539.224-1.035.61-1.43z" opacity=".95"/>
+                      <path fill="#EA4335" d="M16.81 9.018 6.052 2.917l-.143-.083a2.13 2.13 0 0 0-1.86-.083l11.741 11.741 1.02-1.018a1.998 1.998 0 0 0 0-2.829l-.001-.627z"/>
+                      <path fill="#FBBC04" d="M19.756 10.66 16.81 8.99v2.51l3.945 2.235c.997-.563 1.499-1.45 1.499-2.371 0-.92-.502-1.81-1.498-2.376z"/>
+                      <path fill="#4285F4" d="m15.789 14.492-11.741 6.674a2.13 2.13 0 0 0 1.86-.083l.143-.083 10.759-6.1-1.021-.408z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div class="download-name">Android</div>
+                    <div class="download-store">Google Play</div>
+                  </div>
+                </div>
+                <p class="download-desc">支持 Android 7.0 及以上版本。</p>
+                <span class="download-action">
+                  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                  下载 Android 版
+                  <svg class="icon arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                </span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── CTA banner ─── -->
+      <section class="section">
+        <div class="container">
+          <div class="cta-banner">
+            <h2>解锁高级游戏内容</h2>
+            <p>成为会员，享受所有高级棋盘、无限创建与独家主题。</p>
+            <a class="btn btn-lg btn-inverse" href="./buy.html">
+              查看会员方案
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </a>
+          </div>
         </div>
       </section>
     </main>
 
-    <footer class="container page-footer">
-      <p>
-        © 2026 多人成行 Naught Game · Works On My Machine ·
-        <a class="nav-link" href="./privacy.html">隐私政策</a>
-      </p>
+    <!-- ─── Footer ─── -->
+    <footer class="site-footer">
+      <div class="container site-footer-inner">
+        <p>© 2026 多人成行 Naught Game · Works On My Machine</p>
+        <p><a href="./privacy.html">隐私政策</a></p>
+      </div>
     </footer>
   </body>
 </html>

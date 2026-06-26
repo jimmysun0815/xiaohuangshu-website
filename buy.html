@@ -4,129 +4,229 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex,nofollow" />
-    <title>会员订阅 · 多人成行</title>
+    <title>选择会员方案 · 多人成行</title>
     <link rel="stylesheet" href="./styles.css" />
     <link rel="stylesheet" href="./buy.css" />
   </head>
   <body>
-    <header class="site-header">
-      <div class="container header-inner">
-        <a class="brand" href="./index.html">多人成行 Naught Game</a>
+    <!-- ─── Page header（带返回按钮） ─── -->
+    <header class="page-header">
+      <div class="container page-header-inner">
+        <a class="icon-btn" href="./index.html" aria-label="返回首页">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+        </a>
+        <h1 id="pageTitle">选择会员方案</h1>
       </div>
     </header>
 
-    <main class="container buy-container">
+    <main>
       <!-- ─── 状态 A：选套餐 ─── -->
-      <section id="stepPick" class="buy-step buy-step-pick">
-        <h1>选择会员套餐</h1>
-        <p class="muted">付款成功后会立即生成兑换码，在 App「会员中心 → 输入兑换码」激活。</p>
+      <section id="stepPick" class="buy-step">
+        <div class="container section">
+          <div class="section-head">
+            <h2>解锁完整体验</h2>
+            <p>选择适合你的会员方案，开始你的多人成行之旅</p>
+          </div>
 
-        <div id="plansGrid" class="plans-grid">
-          <!-- 由 buy.js 渲染 -->
-          <div class="plans-loading">加载中…</div>
-        </div>
+          <div id="plansGrid" class="pricing-grid">
+            <div class="plans-loading muted">加载中…</div>
+          </div>
 
-        <div class="channel-section">
-          <h3>支付方式</h3>
-          <div class="channel-tabs" role="radiogroup">
-            <button class="channel-tab active" data-channel="alipay" role="radio" aria-checked="true">
-              <span class="channel-icon">支</span>
-              <span>支付宝</span>
+          <div class="buy-controls">
+            <!-- 支付方式 -->
+            <div class="control-block">
+              <h3>支付方式</h3>
+              <div class="channel-tabs" role="radiogroup">
+                <button class="channel-tab active" data-channel="alipay" role="radio" aria-checked="true">
+                  <span class="channel-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22.5 17.247c0 .035-.005.07-.014.104-1.27-.453-3.022-1.224-5.17-2.348-2.166 2.55-4.66 4.157-6.97 4.157-2.66 0-4.346-1.658-4.346-4.142 0-2.61 1.873-4.197 4.844-4.197 1.69 0 3.583.434 5.494 1.14.483-.93.886-1.957 1.184-3.013H7.71V7.99h4.067V6.405H6.94V5.388h4.836V3.5h2.143v1.888h4.836v1.017h-4.836V7.99h3.935c-.413 1.586-1.062 3.054-1.86 4.348 1.42.547 2.61 1.09 3.42 1.482V2.5C19.414 1.123 18.292 0 16.913 0H7.087C5.71 0 4.586 1.122 4.586 2.5v18.997c0 1.378 1.122 2.503 2.5 2.503h9.825c1.378 0 2.503-1.125 2.503-2.503v-3.42c.864.357 1.704.66 2.523.913.114-.402.18-.81.18-1.224 0-.273-.027-.54-.075-.795l.46.276z"/></svg>
+                  </span>
+                  <span>支付宝</span>
+                </button>
+                <!-- 微信支付（暂未启用）：
+                     启用时把下面这一段取消注释，buy.js 已有完整的多渠道切换逻辑。
+                <button class="channel-tab" data-channel="wxpay" role="radio" aria-checked="false">
+                  <span class="channel-icon" aria-hidden="true">微</span>
+                  <span>微信支付</span>
+                </button>
+                -->
+              </div>
+            </div>
+
+            <!-- 邮箱 -->
+            <div class="control-block">
+              <h3>接收邮箱 <span class="required-mark">*</span></h3>
+              <input
+                id="contactInput"
+                type="email"
+                class="text-input"
+                placeholder="例如 you@example.com"
+                maxlength="120"
+                required
+                autocomplete="email"
+              />
+              <p class="field-hint">支付完成后激活码 + 订单收据会发到这个邮箱。</p>
+            </div>
+
+            <button id="payBtn" class="btn btn-primary btn-lg btn-block" disabled>
+              请先选择套餐
             </button>
-            <!-- 微信支付（暂未启用）：
-                 启用时把下面这一段取消注释，buy.js 已有完整的多渠道切换逻辑，
-                 不需要再改 JS。
-            <button class="channel-tab" data-channel="wxpay" role="radio" aria-checked="false">
-              <span class="channel-icon channel-icon-wx">微</span>
-              <span>微信支付</span>
-            </button>
-            -->
+
+            <p id="payError" class="pay-error" hidden></p>
+
+            <p class="legal-note">
+              点击「立即购买」即表示同意 <a href="./privacy.html">隐私政策</a>。
+              兑换码不记名、不退款；如有疑问请联系
+              <a href="mailto:privacy@worksonmymachine.com">privacy@worksonmymachine.com</a>。
+            </p>
+          </div>
+
+          <div class="info-card">
+            <h3>购买说明</h3>
+            <ul class="info-list">
+              <li><span class="bullet">•</span><span>所有方案购买后会立即生成一组激活码，发送到你填写的邮箱。</span></li>
+              <li><span class="bullet">•</span><span>在 App 内进入「会员中心 → 输入兑换码」即可激活全部高级功能。</span></li>
+              <li><span class="bullet">•</span><span>月会员有效期 30 天，年会员有效期 365 天，终身会员一次激活永久使用。</span></li>
+              <li><span class="bullet">•</span><span>激活码不记名、不退款，请妥善保管你的邮箱与订单号。</span></li>
+            </ul>
           </div>
         </div>
-
-        <div class="contact-section">
-          <label for="contactInput">邮箱 <span class="required-mark">*</span></label>
-          <input
-            id="contactInput"
-            type="email"
-            placeholder="例如 you@example.com"
-            maxlength="120"
-            required
-            autocomplete="email"
-          />
-          <p class="field-hint">支付完成后我们会把激活码 + 订单收据发到这个邮箱，请填写常用邮箱。</p>
-        </div>
-
-        <button id="payBtn" class="btn btn-primary btn-pay" disabled>
-          请先选择套餐
-        </button>
-
-        <p id="payError" class="pay-error" hidden></p>
-
-        <p class="legal-note">
-          点击「立即购买」即表示同意 <a href="./privacy.html">隐私政策</a>。
-          兑换码不记名、不退款；如有疑问请联系
-          <a href="mailto:privacy@worksonmymachine.com">privacy@worksonmymachine.com</a>。
-        </p>
       </section>
 
       <!-- ─── 状态 B：跳转支付中 / Polling ─── -->
-      <section id="stepWait" class="buy-step buy-step-wait" hidden>
-        <h1>等待支付结果</h1>
-        <div class="spinner" aria-hidden="true"></div>
-        <p>支付完成后这里会自动跳到下一步。</p>
-        <p class="muted">如果你已经在支付宝/微信里完成支付，请稍候…</p>
-        <p id="waitTimer" class="muted"></p>
-        <button id="cancelWaitBtn" class="btn btn-secondary">取消，回到选套餐</button>
+      <section id="stepWait" class="buy-step" hidden>
+        <div class="container section">
+          <div class="status-block">
+            <div class="status-spinner" aria-hidden="true"></div>
+            <h2>等待支付结果</h2>
+            <p class="muted">支付完成后这里会自动跳到下一步。<br />如果你已经在支付宝里完成支付，请稍候…</p>
+            <p id="waitTimer" class="muted small-text"></p>
+            <button id="cancelWaitBtn" class="btn btn-outline">取消，回到选套餐</button>
+          </div>
+        </div>
       </section>
 
-      <!-- ─── 状态 C：支付成功，展示兑换码 ─── -->
-      <section id="stepDone" class="buy-step buy-step-done" hidden>
-        <div class="success-badge" aria-hidden="true">✓</div>
-        <h1>支付成功</h1>
-        <p class="muted">这是你的专属兑换码。复制后到 App 内激活会员：</p>
+      <!-- ─── 状态 C：支付成功 ─── -->
+      <section id="stepDone" class="buy-step" hidden>
+        <div class="container section">
+          <div class="success-wrap">
+            <div class="success-circle" aria-hidden="true">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <div class="success-message">
+              <h2>购买成功！</h2>
+              <p class="muted">感谢你的购买，激活码已生成并发送到你的邮箱。</p>
+            </div>
 
-        <div class="code-display">
-          <code id="codeText">XXXXXXXXXX</code>
-          <button id="copyCodeBtn" class="btn btn-secondary">复制</button>
+            <!-- 订单详情 -->
+            <div class="card-surface order-details">
+              <h3>订单详情</h3>
+              <dl class="kv-list">
+                <div class="kv-row">
+                  <dt>会员类型</dt>
+                  <dd id="orderTierName">—</dd>
+                </div>
+                <div class="kv-row">
+                  <dt>支付金额</dt>
+                  <dd id="orderAmount">—</dd>
+                </div>
+                <div class="kv-row">
+                  <dt>订单状态</dt>
+                  <dd class="accent">已完成</dd>
+                </div>
+                <div class="kv-row">
+                  <dt>订单号</dt>
+                  <dd class="mono" id="orderRefDisplay">—</dd>
+                </div>
+              </dl>
+            </div>
+
+            <!-- 激活码 -->
+            <div class="code-card">
+              <h3>激活码</h3>
+              <p class="muted">在 App「会员中心 → 输入兑换码」中粘贴以下激活码即可激活会员权益。</p>
+              <div class="code-display">
+                <code id="codeText" class="code-text">XXXXXXXXXX</code>
+              </div>
+              <button id="copyCodeBtn" class="btn btn-primary btn-lg btn-block">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span id="copyCodeLabel">复制激活码</span>
+              </button>
+            </div>
+
+            <!-- 后续步骤 -->
+            <div class="card-surface order-details">
+              <h3>后续步骤</h3>
+              <ol class="numbered-list">
+                <li><span class="num">1</span><span>打开多人成行 App</span></li>
+                <li><span class="num">2</span><span>进入会员中心页面</span></li>
+                <li><span class="num">3</span><span>点击「输入兑换码」</span></li>
+                <li><span class="num">4</span><span>粘贴上方激活码完成兑换</span></li>
+              </ol>
+            </div>
+
+            <div class="done-actions">
+              <a class="btn btn-outline btn-lg" href="./index.html">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <line x1="19" y1="12" x2="5" y2="12"></line>
+                  <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                返回首页
+              </a>
+              <a class="btn btn-primary btn-lg" href="./index.html#download">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                下载 App
+              </a>
+            </div>
+
+            <p class="legal-note">
+              兑换码只能使用一次，请妥善保存。如丢失请联系
+              <a href="mailto:privacy@worksonmymachine.com">privacy@worksonmymachine.com</a>
+              并提供订单号。
+            </p>
+          </div>
         </div>
-
-        <ol class="next-steps">
-          <li>打开 App「多人成行」</li>
-          <li>底部「会员中心」 tab</li>
-          <li>滚到底部，点击「输入兑换码」</li>
-          <li>粘贴上面的兑换码，点「兑换」即可</li>
-        </ol>
-
-        <p class="legal-note">
-          兑换码只能使用一次，请妥善保存。如丢失请联系
-          <a href="mailto:privacy@worksonmymachine.com">privacy@worksonmymachine.com</a> 并提供订单号
-          <code id="orderRefDisplay"></code>。
-        </p>
       </section>
 
       <!-- ─── 状态 D：失败 / 过期 ─── -->
-      <section id="stepFail" class="buy-step buy-step-fail" hidden>
-        <h1 id="failTitle">订单状态异常</h1>
-        <p id="failMessage" class="muted"></p>
-        <button id="restartBtn" class="btn btn-primary">重新购买</button>
-        <p class="legal-note">
-          如果你已经完成支付但这里没显示成功，请联系
-          <a href="mailto:privacy@worksonmymachine.com">privacy@worksonmymachine.com</a>
-          并提供订单号 <code id="failOrderRef"></code>。
-        </p>
+      <section id="stepFail" class="buy-step" hidden>
+        <div class="container section">
+          <div class="status-block">
+            <div class="status-fail-circle" aria-hidden="true">!</div>
+            <h2 id="failTitle">订单状态异常</h2>
+            <p id="failMessage" class="muted"></p>
+            <button id="restartBtn" class="btn btn-primary">重新购买</button>
+            <p class="legal-note">
+              如果你已经完成支付但这里没显示成功，请联系
+              <a href="mailto:privacy@worksonmymachine.com">privacy@worksonmymachine.com</a>
+              并提供订单号 <code id="failOrderRef" class="mono"></code>。
+            </p>
+          </div>
+        </div>
       </section>
     </main>
 
-    <footer class="container page-footer">
-      <p>
-        © 2026 多人成行 Naught Game · Works On My Machine ·
-        <a class="nav-link" href="./privacy.html">隐私政策</a>
-      </p>
+    <footer class="site-footer">
+      <div class="container site-footer-inner">
+        <p>© 2026 多人成行 Naught Game · Works On My Machine</p>
+        <p><a href="./privacy.html">隐私政策</a></p>
+      </div>
     </footer>
 
     <!-- supabase-js 用 admin 那份本地副本，避免大陆访问 CDN 慢 -->
     <script src="./admin/vendor/supabase.min.js"></script>
-    <script src="./buy.js?v=1"></script>
+    <script src="./buy.js?v=2"></script>
   </body>
 </html>
