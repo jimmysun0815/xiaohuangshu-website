@@ -241,3 +241,152 @@ summary {
     font-size: 1.65rem;
   }
 }
+
+/* ─── 顶部导航的「购买会员」入口 ─────────────────────────────────── */
+.nav-link-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: var(--primary);
+  color: #fff !important;
+  font-weight: 700;
+  transition: background 0.15s;
+}
+
+.nav-link-primary:hover {
+  background: var(--primary-hover);
+  color: #fff !important;
+}
+
+/* ─── Hero 大按钮 ─────────────────────────────────────────────── */
+.btn-lg {
+  padding: 14px 26px;
+  font-size: 1.05rem;
+}
+
+.btn-primary.btn-lg span {
+  display: inline-block;
+  margin-left: 4px;
+  transition: transform 0.15s;
+}
+
+.btn-primary.btn-lg:hover span {
+  transform: translateX(3px);
+}
+
+/* ─── 会员套餐区段 ────────────────────────────────────────────── */
+.pricing-section {
+  padding: 24px 0 36px;
+}
+
+.pricing-head {
+  margin-bottom: 18px;
+}
+
+.pricing-head h2 {
+  margin: 0 0 6px;
+}
+
+.pricing-head p {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.pricing-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 22px 20px 18px;
+  border-radius: 16px;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s, transform 0.1s, box-shadow 0.15s;
+}
+
+.pricing-card:hover {
+  border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.pricing-card-recommended {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 6%, var(--surface));
+}
+
+.pricing-tag {
+  position: absolute;
+  top: -10px;
+  right: 16px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.pricing-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.pricing-price {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: var(--primary);
+  line-height: 1.1;
+  margin: 2px 0 0;
+}
+
+.pricing-unit {
+  margin-left: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.pricing-desc {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.pricing-cta {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.pricing-foot {
+  margin: 16px 0 0;
+  font-size: 0.88rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .pricing-grid {
+    grid-template-columns: 1fr;
+  }
+  .pricing-card {
+    padding: 18px 18px 14px;
+  }
+}
+
