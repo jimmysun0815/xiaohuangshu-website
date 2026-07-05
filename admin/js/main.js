@@ -132,6 +132,7 @@
     config: "App Config",
     codes: "兑换码",
     events: "RC 事件流",
+    voiceRooms: "语音房",
   };
 
   function bindNav() {

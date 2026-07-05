@@ -269,5 +269,33 @@
     deleteInviteCode,
     expireInviteCode,
     listRedemptionsForCode,
+    // voice rooms
+    listVoiceRooms,
+    voiceRoomDetail,
+    voiceRoomChat,
   };
+
+  // ─── Voice rooms（声控话题房 admin）──────────────────────────────────
+  async function listVoiceRooms({ status = null, limit = 50, offset = 0 } = {}) {
+    const data = await rpc("admin_list_voice_rooms", {
+      p_status: status,
+      p_limit: limit,
+      p_offset: offset,
+    });
+    return data || [];
+  }
+  async function voiceRoomDetail(roomId) {
+    const data = await rpc("admin_voice_room_detail", { p_room_id: roomId });
+    if (!data || data.ok !== true) {
+      throw new Error(data?.error || "voice room detail failed");
+    }
+    return data;
+  }
+  async function voiceRoomChat(roomId, limit = 1000) {
+    const data = await rpc("admin_voice_room_chat", {
+      p_room_id: roomId,
+      p_limit: limit,
+    });
+    return data || [];
+  }
 })();
