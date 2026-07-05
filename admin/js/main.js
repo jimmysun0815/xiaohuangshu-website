@@ -132,7 +132,7 @@
     config: "App Config",
     codes: "兑换码",
     events: "RC 事件流",
-    voiceRooms: "语音房",
+    voiceRooms: "Space 直播间",
   };
 
   function bindNav() {

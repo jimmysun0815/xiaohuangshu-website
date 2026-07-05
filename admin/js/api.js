@@ -275,7 +275,7 @@
     voiceRoomChat,
   };
 
-  // ─── Voice rooms（声控话题房 admin）──────────────────────────────────
+  // ─── Voice rooms（Space 直播间 admin）──────────────────────────────────
   async function listVoiceRooms({ status = null, limit = 50, offset = 0 } = {}) {
     const data = await rpc("admin_list_voice_rooms", {
       p_status: status,

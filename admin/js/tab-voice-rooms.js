@@ -1,4 +1,4 @@
-// Voice rooms tab —— 声控话题房记录（看每个房间的完整 timeline）
+// Voice rooms tab —— Space 直播间记录（看每个房间的完整 timeline）
 window.AdminTabs.voiceRooms = {
   async render(c, { api, utils }) {
     const state = {
@@ -114,7 +114,7 @@ window.AdminTabs.voiceRooms = {
     async function showDetail(roomId) {
       const body = document.createElement("div");
       body.innerHTML = '<div class="empty">加载中…</div>';
-      utils.showModal("语音房详情", body);
+      utils.showModal("Space 直播间详情", body);
       try {
         const [detail, chat] = await Promise.all([
           api.voiceRoomDetail(roomId),
