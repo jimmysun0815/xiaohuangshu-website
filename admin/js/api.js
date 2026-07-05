@@ -273,6 +273,7 @@
     listVoiceRooms,
     voiceRoomDetail,
     voiceRoomChat,
+    closeVoiceRoom,
   };
 
   // ─── Voice rooms（Space 直播间 admin）──────────────────────────────────
@@ -297,5 +298,12 @@
       p_limit: limit,
     });
     return data || [];
+  }
+  async function closeVoiceRoom(roomId) {
+    const data = await rpc("admin_close_voice_room", { p_room_id: roomId });
+    if (!data || data.ok !== true) {
+      throw new Error(data?.error || "close failed");
+    }
+    return data;
   }
 })();

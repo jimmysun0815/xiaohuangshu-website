@@ -97,17 +97,37 @@ window.AdminTabs.voiceRooms = {
             <td>${spaceUrl
               ? `<a href="${utils.escape(spaceUrl)}" target="_blank" rel="noopener">🎧 打开</a>`
               : '<span class="muted">—</span>'}</td>
-            <td><button class="btn btn-primary" data-act="detail">详情</button></td>
+            <td class="no-wrap">
+              <button class="btn btn-primary" data-act="detail">详情</button>
+              ${r.status === "active" ? '<button class="btn" data-act="close" style="color:var(--danger);border-color:var(--danger)">关房</button>' : ""}
+            </td>
           `;
           tr.querySelector("[data-act=detail]").addEventListener("click", () =>
             showDetail(r.id),
           );
+          const closeBtn = tr.querySelector("[data-act=close]");
+          if (closeBtn) {
+            closeBtn.addEventListener("click", () => closeRoom(r));
+          }
           tb.appendChild(tr);
         });
         $("#vrTable").innerHTML = "";
         $("#vrTable").appendChild(tbl);
       } catch (err) {
         $("#vrTable").innerHTML = `<div class="empty">加载失败：${utils.escape(err.message)}</div>`;
+      }
+    }
+
+    async function closeRoom(r) {
+      const label = `${r.room_code} · ${r.x_space_title || "(无标题)"}`;
+      if (!utils.confirm(`确定关闭房间 ${label}？\n\n所有还在房内的用户会收到通知并被踢回入口。`)) {
+        return;
+      }
+      try {
+        await api.closeVoiceRoom(r.id);
+        await reload();
+      } catch (err) {
+        utils.toast(`关房失败：${err.message}`);
       }
     }
 
