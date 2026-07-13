@@ -740,10 +740,25 @@ if (typeof document !== 'undefined') {
     return canvas;
   }
 
-  async function shareCard() {
+  async function makeCardBlob() {
     const ranked = rankScores(computeScores(resultAnswers));
     const canvas = drawShareCard(ranked[0][0], ranked);
     const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+    return { blob, ranked };
+  }
+
+  function downloadBlob(blob) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'kaifang-quiz-result.png';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  }
+
+  async function shareCard() {
+    const { blob } = await makeCardBlob();
     if (!blob) {
       showToast('生成卡片失败，请重试');
       return;
@@ -757,14 +772,46 @@ if (typeof document !== 'undefined') {
         if (e && e.name === 'AbortError') return;
       }
     }
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'kaifang-quiz-result.png';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    downloadBlob(blob);
     showToast('卡片已保存');
+  }
+
+  /* 分享到 X：图片 + 文字。
+     移动端走系统分享面板（图和文案直接进 X App）；
+     桌面端把图片写进剪贴板再打开发推窗口，用户粘贴即可。 */
+  async function shareToX() {
+    const { blob, ranked } = await makeCardBlob();
+    const persona = PERSONAS[ranked[0][0]];
+    const text = `我测出来的开放性关系人格是【${persona.name}】—— ${persona.tagline}。你敢来测吗？`;
+
+    if (blob) {
+      const file = new File([blob], 'kaifang-quiz-result.png', { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], text: `${text} ${QUIZ_URL}` });
+          return;
+        } catch (e) {
+          if (e && e.name === 'AbortError') return;
+        }
+      }
+    }
+
+    let copied = false;
+    if (blob && navigator.clipboard && window.ClipboardItem) {
+      try {
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+        copied = true;
+      } catch (e) { /* 剪贴板不可用则降级下载 */ }
+    }
+    if (!copied && blob) downloadBlob(blob);
+
+    window.open(
+      'https://twitter.com/intent/tweet' +
+      `?text=${encodeURIComponent(text)}&url=${encodeURIComponent(QUIZ_URL)}`,
+      '_blank',
+      'noopener',
+    );
+    showToast(copied ? '卡片图已复制，在推文里粘贴（Cmd/Ctrl+V）即可' : '卡片图已下载，拖进推文即可');
   }
 
   /* ─── 初始化 ─── */
@@ -778,6 +825,7 @@ if (typeof document !== 'undefined') {
         renderQuestion();
       }
     });
+    $('shareXBtn').addEventListener('click', shareToX);
     $('shareCardBtn').addEventListener('click', shareCard);
     $('copyLinkBtn').addEventListener('click', copyResultLink);
     $('inviteBtn').addEventListener('click', inviteShare);
