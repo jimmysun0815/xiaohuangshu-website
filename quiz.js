@@ -1,0 +1,815 @@
+'use strict';
+
+/* ════════════════════════════════════════════════════════════════════
+   开放性关系人格测试
+   题库 / 计分 / 文案全部来自《开放性关系人格测试_完整开发文档.md》v1.0
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ─── 题库（§3 问卷 + §4.2 计分映射表） ─── */
+const QUESTIONS = [
+  {
+    text: '当你想象自己的伴侣正在和别人做爱的时候，你的第一反应是？',
+    options: [
+      { text: '完全接受不了，很不舒服', scores: { PL: 3 } },
+      { text: '有点兴奋，但更多是不安', scores: { SC: 2, VG: 1 } },
+      { text: '明显兴奋', scores: { VG: 2, HC: 1, SC: 1 } },
+      { text: '超级兴奋，甚至想亲自安排', scores: { XQ: 2, HC: 2 } },
+    ],
+  },
+  {
+    text: '如果你的伴侣跟你说"我想和别人试试"，你最可能怎么回？',
+    options: [
+      { text: '直接拒绝，或者认真谈风险', scores: { PL: 3 } },
+      { text: '犹豫很久，最后可能勉强同意但设很多限制', scores: { SC: 2, PR: 1 } },
+      { text: '问清楚细节后表示可以接受', scores: { PS: 1, PR: 1, SC: 1 } },
+      { text: '立刻问"什么时候？我可以帮你找人 / 我要不要在场？"', scores: { XQ: 3, HC: 1 } },
+    ],
+  },
+  {
+    text: '你更享受以下哪种情况？',
+    options: [
+      { text: '两个人只属于彼此，身体和心都专一', scores: { PL: 3 } },
+      { text: '对方可以出去约，但回来只跟我有感情和深度连接', scores: { PS: 2, PR: 1 } },
+      { text: '看着对方和别人做爱，自己在旁边或者事后听细节', scores: { VG: 3, SC: 1 } },
+      { text: '自己主动把对方送出去，并全程知道/参与安排', scores: { XQ: 3, HC: 1 } },
+    ],
+  },
+  {
+    text: '关于"性"和"爱"，你更接近哪种想法？',
+    options: [
+      { text: '性和爱必须绑定，分开就是出轨', scores: { PL: 3 } },
+      { text: '爱可以专一，性可以适当开放', scores: { PS: 2, PR: 1 } },
+      { text: '性和爱完全可以分开，甚至分开更爽', scores: { PS: 2, HC: 1, XQ: 1 } },
+      { text: '标签不重要，当下真实的连接和快感才重要', scores: { RA: 3 } },
+    ],
+  },
+  {
+    text: '你理想中的多边/开放状态是？',
+    options: [
+      { text: '坚决不要，一对一到底', scores: { PL: 3 } },
+      { text: '可以开放，但大家各玩各的，互不打扰', scores: { PR: 3 } },
+      { text: '最好大家能一起吃饭聊天相处，像家人一样', scores: { KT: 3 } },
+      { text: '不需要任何标签和固定结构，随缘流动', scores: { RA: 3 } },
+    ],
+  },
+  {
+    text: '看到伴侣被别人撩/夸很有魅力时，你真实的内心是？',
+    options: [
+      { text: '吃醋，不舒服', scores: { PL: 3 } },
+      { text: '有点得意，也有点危机感', scores: { SC: 2 } },
+      { text: '兴奋，觉得对方被别人认可很性感', scores: { VG: 2, SC: 1 } },
+      { text: '超级兴奋，甚至想推动这件事继续发展', scores: { XQ: 2, HC: 1, VG: 1 } },
+    ],
+  },
+  {
+    text: '你愿意自己被"绿"到什么程度？',
+    options: [
+      { text: '完全不愿意', scores: { PL: 3 } },
+      { text: '可以接受对方有约，但不要太频繁、不要太深入', scores: { SC: 2, PS: 1 } },
+      { text: '可以接受对方和别人做爱，自己知道细节就很刺激', scores: { VG: 2, SC: 1, HC: 1 } },
+      { text: '希望对方被玩得很投入，自己越被"忽视"越兴奋', scores: { HC: 3, XQ: 1 } },
+    ],
+  },
+  {
+    text: '你更倾向于？',
+    options: [
+      { text: '我绝对不会主动让伴侣去找别人', scores: { PL: 2, PR: 1 } },
+      { text: '如果对方想，我可以勉强接受', scores: { SC: 2 } },
+      { text: '我自己有点想看/想被绿，但不会主动提', scores: { VG: 2, SC: 1 } },
+      { text: '我会主动提议，甚至安排对方出去玩', scores: { XQ: 3, HC: 1 } },
+    ],
+  },
+  {
+    text: '关于"在场"，你更喜欢？',
+    options: [
+      { text: '绝对不能有别人在场或参与', scores: { PL: 3 } },
+      { text: '对方出去约可以，但我不要知道太多细节', scores: { PR: 2, PS: 1 } },
+      { text: '我可以接受听细节或看照片/视频', scores: { VG: 3 } },
+      { text: '我最想亲眼看着，或者一起参与', scores: { XQ: 2, HC: 1, VG: 1, KT: 1 } },
+    ],
+  },
+  {
+    text: '如果伴侣跟别人玩得很开心，回来跟你分享细节，你会？',
+    options: [
+      { text: '很难受，可能发脾气或冷暴力', scores: { PL: 3 } },
+      { text: '表面平静，内心复杂', scores: { SC: 2 } },
+      { text: '听得很认真，会兴奋', scores: { VG: 2, SC: 1 } },
+      { text: '听得超级兴奋，还会追问更多细节，甚至要求下次更过分', scores: { HC: 2, XQ: 2, VG: 1 } },
+    ],
+  },
+  {
+    text: '你对"嫉妒"的真实态度是？',
+    options: [
+      { text: '嫉妒是爱的证明，必须认真对待', scores: { PL: 3 } },
+      { text: '嫉妒会有，但可以沟通管理', scores: { PR: 1, SC: 1, KT: 1 } },
+      { text: '嫉妒可以被转化成兴奋', scores: { VG: 1, SC: 1, HC: 1, XQ: 1 } },
+      { text: '我几乎不靠嫉妒来确认关系，更多靠信任和自由', scores: { RA: 2, PS: 1 } },
+    ],
+  },
+  {
+    text: '你理想的性生活频率和形式更接近？',
+    options: [
+      { text: '只和固定伴侣，深度连接优先', scores: { PL: 3 } },
+      { text: '固定伴侣为主，偶尔可以有新鲜感', scores: { PS: 2, PR: 1 } },
+      { text: '固定伴侣 + 定期/不定期的外人', scores: { PS: 1, HC: 1, XQ: 1, VG: 1 } },
+      { text: '没有固定形式，想跟谁发生关系就跟谁，标签不重要', scores: { RA: 3 } },
+    ],
+  },
+  {
+    text: '当你看到别人的开放/NTR内容时，你通常？',
+    options: [
+      { text: '觉得接受不了', scores: { PL: 3 } },
+      { text: '会好奇点进去看，但不会代入自己', scores: { SC: 1, PS: 1 } },
+      { text: '会代入自己是被绿的那方，感觉刺激', scores: { VG: 2, SC: 1, HC: 1 } },
+      { text: '会代入自己是送出去的那方，或者安排的那方', scores: { XQ: 2, HC: 1 } },
+    ],
+  },
+  {
+    text: '你更看重关系里的什么？',
+    options: [
+      { text: '绝对的专一和安全感', scores: { PL: 3 } },
+      { text: '清晰的边界和互相尊重', scores: { PR: 2 } },
+      { text: '深度的情感连接 + 性开放', scores: { KT: 2, PS: 1 } },
+      { text: '自由、流动、真实的欲望', scores: { RA: 3 } },
+    ],
+  },
+  {
+    text: '如果要给自己的开放程度打分（1-10分，10分最开放），你内心真实分数大概是？',
+    options: [
+      { text: '1-3分', scores: { PL: 3 } },
+      { text: '4-6分', scores: { SC: 1, PR: 1, PS: 1 } },
+      { text: '7-8分', scores: { VG: 1, HC: 1, XQ: 1, KT: 1 } },
+      { text: '9-10分', scores: { HC: 1, XQ: 1, RA: 1, PS: 1 } },
+    ],
+  },
+  {
+    text: '你能接受伴侣同时对别人产生感情吗？',
+    options: [
+      { text: '完全不能', scores: { PL: 3 } },
+      { text: '性可以，感情不行', scores: { PS: 2, PR: 1 } },
+      { text: '感情也可以，但要有主次或透明', scores: { KT: 2, SC: 1 } },
+      { text: '感情和性都可以同时存在，只要沟通好', scores: { RA: 2, KT: 1, HC: 1 } },
+    ],
+  },
+  {
+    text: '你更喜欢什么样的权力动态？',
+    options: [
+      { text: '平等专一，互相属于对方', scores: { PL: 3 } },
+      { text: '平等开放，各自独立', scores: { PR: 2, RA: 1 } },
+      { text: '我更享受被"忽视/被绿"的被动位置', scores: { HC: 2, VG: 1, SC: 1 } },
+      { text: '我更享受掌控全局、安排对方去玩的主动位置', scores: { XQ: 3 } },
+    ],
+  },
+  {
+    text: '关于"事后"，你更希望？',
+    options: [
+      { text: '对方出去玩后最好当没发生过', scores: { PL: 3 } },
+      { text: '简单说一下就行，不要太细', scores: { PR: 2, SC: 1 } },
+      { text: '详细分享过程，我听着很兴奋', scores: { VG: 2, SC: 1 } },
+      { text: '详细分享 + 我们立刻再做一次，用这些细节当燃料', scores: { HC: 2, XQ: 2 } },
+    ],
+  },
+  {
+    text: '你觉得自己最接近哪种人？',
+    options: [
+      { text: '纯爱主义者', scores: { PL: 3 } },
+      { text: '可以开放但很克制的人', scores: { SC: 1, PR: 1, PS: 1 } },
+      { text: '享受观看或被绿的人', scores: { VG: 2, SC: 1, HC: 1 } },
+      { text: '主动推动开放/NTR的人', scores: { XQ: 2, HC: 1 } },
+    ],
+  },
+  {
+    text: '最后一题：如果现在有一个按钮，按下后你的伴侣今晚就会和别人好好做一次爱，你会？',
+    options: [
+      { text: '绝对不按', scores: { PL: 3 } },
+      { text: '犹豫很久，大概率不按', scores: { SC: 2 } },
+      { text: '会按，但心里有点复杂', scores: { VG: 1, SC: 1, HC: 1 } },
+      { text: '毫不犹豫按下去，并且想听全过程', scores: { XQ: 2, HC: 2 } },
+    ],
+  },
+];
+
+/* ─── 并列时的主结果优先级（§4.1，数字越小越优先） ─── */
+const PRIORITY = {
+  HC: 1, XQ: 2, VG: 3, SC: 4, PS: 5,
+  KT: 6, PR: 7, RA: 8, PL: 9,
+};
+
+/* ─── 9 种人格（§2 名单 + §5 两版文案） ─── */
+const PERSONAS = {
+  PL: {
+    name: '纯爱战神',
+    emoji: '💘',
+    tagline: '坚定一对一，无法接受开放',
+    soft: [
+      '你的心只有一个位置，进来了就不轻易让人出去，更别提再塞第二个人。',
+      '别人觉得你固执，你只是认真。',
+      '你把忠诚当成最高级的浪漫，把专一当成最后的底线。',
+      '你不是不懂开放，你只是清楚地知道：有些东西一旦分享，对你来说就不再完整了。',
+      '你爱得干净，也爱得用力。',
+    ],
+    bold: [
+      '你的身体和心都只属于一个人。',
+      '别人谈开放你听着像在听外星人说话。',
+      '你不是保守，你是认真。',
+      '你把专一当成最高级的性张力，把忠诚当成最后的底线。',
+      '一旦分享，对你来说就等于稀释了爱，也稀释了欲。',
+      '你爱得干净，也做得干净。',
+    ],
+  },
+  PS: {
+    name: '纯干战神',
+    emoji: '🔥',
+    tagline: '爱可专一，性可开放',
+    soft: [
+      '感情可以很深，身体却不需要绑死。',
+      '你能把性和爱分得很清楚，甚至享受这种清晰。',
+      '别人还在纠结"做了会不会变心"，你已经在想"今晚谁比较有感觉"。',
+      '你不是滥情，你只是诚实。',
+      '你把欲望当成正常需求，而不是道德审判。',
+      '在你这里，身体自由，才是真正的松弛。',
+    ],
+    bold: [
+      '爱可以很深，身体却不需要绑定。',
+      '你能把做爱和爱分得清清楚楚，甚至享受这种分开。',
+      '别人还在纠结"做了会不会动心"，你已经在想"今晚谁更合口味"。',
+      '你不是滥交，你只是诚实。',
+      '欲望就是欲望，不需要道德包装。',
+      '在你这里，身体自由才是真的爽。',
+    ],
+  },
+  VG: {
+    name: '观绿达人',
+    emoji: '👀',
+    tagline: '喜欢观看，不一定亲自参与',
+    soft: [
+      '你不一定要下场，但你很享受看着。',
+      '对方因为别人而兴奋的样子，反而会点燃你。',
+      '你不是冷漠，你是把"观看"本身变成了一种亲密。',
+      '别人觉得刺激在参与，你觉得刺激在旁观。',
+      '你用距离保护自己，也用距离获得快感。',
+      '你比大多数人更懂：有时候，最深的参与，是安静地看着。',
+    ],
+    bold: [
+      '你不一定要亲自参与，但你特别喜欢看。',
+      '看着自己的人被别人做到兴奋、高潮，你会比谁都有感觉。',
+      '你不是冷漠，你是把"观看"本身变成了最高级的前戏。',
+      '别人觉得刺激在参与，你觉得刺激在旁观。',
+      '你用距离保护自己，也用距离获得最强的快感。',
+      '有时候，最深的占有，就是安静地看着自己的人被别人好好对待。',
+    ],
+  },
+  SC: {
+    name: '牛头人（软）',
+    emoji: '🌗',
+    tagline: '对"被绿"有轻微兴奋，有底线',
+    soft: [
+      '你会对"被分享"这件事感到一丝刺激，但还没到上瘾的程度。',
+      '你会幻想，会兴奋，但真正发生时，你还是会有底线。',
+      '你不是完全的绿帽，也不是纯爱。',
+      '你站在中间，既想靠近那团火，又怕被烫到。',
+      '你的开放是试探性的，带着好奇，也带着谨慎。',
+      '你还在摸索自己的边界，这很正常，也很真实。',
+    ],
+    bold: [
+      '你会对"被绿"这件事感到隐隐兴奋，但还没到上瘾。',
+      '你会幻想对方和别人做爱，自己在旁边或者听着，但真正发生时还是会有底线。',
+      '你不是彻底的绿帽，也不是纯爱。',
+      '你站在中间，既想靠近那团火，又怕真的被烫到。',
+      '你的开放带着好奇，也带着试探。',
+      '你还在摸自己的底，这很正常。',
+    ],
+  },
+  HC: {
+    name: '牛头人（硬核）',
+    emoji: '🐂',
+    tagline: '被绿带来强烈兴奋，主动享受',
+    soft: [
+      '被绿对你来说不是伤害，而是奖励。',
+      '对方越是被别人渴望、被别人占有，你越觉得兴奋。',
+      '你不是没有占有欲，你只是把占有欲转化成了另一种快感。',
+      '你享受那种"我的人在别人手里发光"的感觉。',
+      '别人靠独占来确认爱，你靠分享来确认爱。',
+      '你走在大多数人不敢走的路上，但你走得很清醒。',
+    ],
+    bold: [
+      '被绿对你来说不是伤害，而是奖励。',
+      '对方越是被别人做得投入、做得深、做得浪，你就越兴奋。',
+      '你不是没有占有欲，你只是把占有欲转化成了最直接也最诚实的快感。',
+      '你享受那种"我的人正在被别人好好做"的感觉。',
+      '别人靠独占来确认爱，你靠分享来确认爱。',
+      '你走在大多数人不敢走的路上，但你走得很清醒，也很兴奋。',
+    ],
+  },
+  XQ: {
+    name: '献妻达人',
+    emoji: '🎁',
+    tagline: '主动安排/送伴侣出去，自己更爽',
+    soft: [
+      '你爱一个人的方式，是让他/她去拥有更多的快乐，哪怕那份快乐暂时不是你给的。',
+      '你不是"被绿"，你是主动把空间打开的人。',
+      '别人还在用占有欲证明爱，你已经用"我支持你去体验"在证明。',
+      '你享受看着对方因为新鲜而发光的样子，那让你既兴奋，又安心。',
+      '你大概是少数能把"分享"这件事，做得既真诚又带点私心的人。',
+      '你不是没有占有欲，你只是选择用更高级的方式去消化它。',
+    ],
+    bold: [
+      '你爱一个人的方式，是亲手把ta送出去和别人做爱。',
+      '你不是"被绿"，你是主动安排绿的人。',
+      '别人还在用占有欲证明爱，你已经用"我看着你被别人做到高潮"在证明。',
+      '你享受对方因为新鲜而发浪的样子，那让你既兴奋又安心。',
+      '你大概是少数能把"主动送出去"这件事做得既真诚又极度色情的人。',
+      '你不是没有占有欲，你只是选择用最直接的方式去消耗它——看着自己的人被别人好好做。',
+    ],
+  },
+  KT: {
+    name: '我们几个把日子过好',
+    emoji: '🏡',
+    tagline: '希望大家像家人一样共同生活相处',
+    soft: [
+      '你理想中的关系，不是两个人关起门来过日子，而是一群人一起把生活过踏实。',
+      '一起吃饭、一起聊天、一起处理情绪、一起面对现实。',
+      '你要的不是刺激，而是连接。',
+      '你相信爱可以扩展，而不是被稀释。',
+      '别人觉得多边很乱，你觉得多边很像家。',
+      '你想要的，是真正的"我们"。',
+    ],
+    bold: [
+      '你理想中的关系不是两个人关起门来，而是一群人一起过日子、一起亲密。',
+      '一起吃饭、一起聊天、一起睡觉、一起处理嫉妒和高潮。',
+      '你要的不是单纯的刺激，而是深度连接。',
+      '你相信爱和性都可以扩展，而不是被稀释。',
+      '别人觉得多边很乱，你觉得多边很像真正的家。',
+      '你想要的，是真正的"我们"。',
+    ],
+  },
+  PR: {
+    name: '互不打扰型',
+    emoji: '🌊',
+    tagline: '各自独立，互不干扰',
+    soft: [
+      '你可以接受开放，但前提是大家都有自己的空间。',
+      '你不喜欢过度纠缠，也不喜欢被迫融入别人的关系。',
+      '各自有各自的生活，各自有各自的亲密，互不越界才是舒服的状态。',
+      '你尊重独立，也需要独立。',
+      '你不是冷淡，你只是把边界感放在了最高优先级。',
+      '在你这里，自由和尊重，比粘在一起更重要。',
+    ],
+    bold: [
+      '你可以接受开放，但前提是大家都有自己的空间。',
+      '你不喜欢过度纠缠，也不喜欢被迫观看或被观看。',
+      '各自有各自的性生活，各自有各自的亲密，互不越界才是舒服。',
+      '你尊重独立，也极度需要独立。',
+      '你不是冷淡，你只是把边界感放在最高优先级。',
+      '在你这里，自由和尊重，比粘在一起更重要。',
+    ],
+  },
+  RA: {
+    name: '无标签自由人',
+    emoji: '🕊️',
+    tagline: '拒绝标签与固定结构，随缘流动',
+    soft: [
+      '你讨厌被定义，也讨厌定义别人。',
+      '恋人、炮友、暧昧、朋友……这些词对你来说都太窄了。',
+      '你只在乎当下真实的连接，而不是关系必须叫什么名字。',
+      '你不立规则，也不被规则困住。',
+      '别人靠标签获得安全感，你靠流动获得安全感。',
+      '你活得比大多数人更自由，也比大多数人更难被抓住。',
+    ],
+    bold: [
+      '你讨厌被定义，也讨厌定义别人。',
+      '恋人、炮友、固定性伴侣……这些词对你来说都太窄了。',
+      '你只在乎当下真实的连接和真实的欲望，而不在乎这段关系必须叫什么名字。',
+      '你不立规则，也不被规则困住。',
+      '别人靠标签获得安全感，你靠流动和真实获得安全感。',
+      '你活得比大多数人更自由，也比大多数人更难被真正抓住。',
+    ],
+  },
+};
+
+const OPTION_KEYS = ['A', 'B', 'C', 'D'];
+const QUIZ_URL = 'https://duorenchengxing.com/quiz.html';
+const AGE_KEY = 'quiz_age_verified';
+
+/* ─── 计分（§4.1 / §4.3） ─── */
+function computeScores(answers) {
+  const scores = {
+    PL: 0, PS: 0, VG: 0, SC: 0, HC: 0,
+    XQ: 0, KT: 0, PR: 0, RA: 0,
+  };
+  answers.forEach((choice, i) => {
+    const map = QUESTIONS[i].options[choice].scores;
+    for (const code in map) scores[code] += map[code];
+  });
+  return scores;
+}
+
+function rankScores(scores) {
+  return Object.entries(scores)
+    .sort((a, b) => b[1] - a[1] || PRIORITY[a[0]] - PRIORITY[b[0]]);
+}
+
+function encodeAnswers(answers) {
+  return answers.map((i) => OPTION_KEYS[i]).join('');
+}
+
+function decodeAnswers(str) {
+  if (typeof str !== 'string' || str.length !== QUESTIONS.length) return null;
+  const answers = [];
+  for (const ch of str.toUpperCase()) {
+    const idx = OPTION_KEYS.indexOf(ch);
+    if (idx === -1) return null;
+    answers.push(idx);
+  }
+  return answers;
+}
+
+/* ─── Node 环境导出（供计分逻辑测试用；浏览器里直接跳过） ─── */
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    QUESTIONS, PRIORITY, PERSONAS,
+    computeScores, rankScores, encodeAnswers, decodeAnswers,
+  };
+}
+
+/* ════════════════ 以下为浏览器 UI 逻辑 ════════════════ */
+if (typeof document !== 'undefined') {
+  const $ = (id) => document.getElementById(id);
+
+  const views = {
+    intro: $('viewIntro'),
+    quiz: $('viewQuiz'),
+    result: $('viewResult'),
+  };
+
+  let answers = [];
+  let currentQ = 0;
+  let currentVersion = 'soft'; // 'soft' | 'bold'
+  let resultAnswers = null; // 当前结果页对应的答案
+
+  function showView(name) {
+    Object.values(views).forEach((v) => v.classList.remove('active'));
+    views[name].classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+  }
+
+  /* ─── 18+ 门 ─── */
+  function initAgeGate() {
+    let verified = false;
+    try {
+      verified = localStorage.getItem(AGE_KEY) === '1';
+    } catch (e) { /* localStorage 不可用则每次都弹 */ }
+    if (verified) return;
+    const overlay = $('ageOverlay');
+    overlay.hidden = false;
+    document.body.classList.add('no-scroll');
+    $('ageConfirmBtn').addEventListener('click', () => {
+      try { localStorage.setItem(AGE_KEY, '1'); } catch (e) { /* ignore */ }
+      overlay.hidden = true;
+      document.body.classList.remove('no-scroll');
+    });
+  }
+
+  /* ─── 答题 ─── */
+  function renderQuestion() {
+    const q = QUESTIONS[currentQ];
+    $('progressText').textContent = `${currentQ + 1} / ${QUESTIONS.length}`;
+    $('progressFill').style.width = `${((currentQ) / QUESTIONS.length) * 100}%`;
+    $('qText').textContent = `${currentQ + 1}. ${q.text}`;
+    $('prevBtn').style.visibility = currentQ === 0 ? 'hidden' : 'visible';
+
+    const wrap = $('options');
+    wrap.innerHTML = '';
+    q.options.forEach((opt, idx) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'option-btn' + (answers[currentQ] === idx ? ' selected' : '');
+      btn.innerHTML =
+        `<span class="option-key">${OPTION_KEYS[idx]}</span>` +
+        `<span class="option-text"></span>`;
+      btn.querySelector('.option-text').textContent = opt.text;
+      btn.addEventListener('click', () => {
+        answers[currentQ] = idx;
+        btn.classList.add('selected');
+        setTimeout(() => {
+          if (currentQ < QUESTIONS.length - 1) {
+            currentQ += 1;
+            renderQuestion();
+          } else {
+            showResult(answers.slice(), false);
+          }
+        }, 180);
+      });
+      wrap.appendChild(btn);
+    });
+  }
+
+  function startQuiz() {
+    answers = [];
+    currentQ = 0;
+    showView('quiz');
+    renderQuestion();
+  }
+
+  /* ─── 结果 ─── */
+  function showResult(ans, isShared) {
+    resultAnswers = ans;
+    const scores = computeScores(ans);
+    const ranked = rankScores(scores);
+    const primary = ranked[0][0];
+    const secondary = ranked[1][0];
+    const persona = PERSONAS[primary];
+
+    $('sharedBanner').hidden = !isShared;
+    $('personaEmoji').textContent = persona.emoji;
+    $('personaName').textContent = persona.name;
+    $('personaTagline').textContent = persona.tagline;
+    renderDesc(primary);
+
+    const secondaryEl = $('secondaryHint');
+    if (ranked[1][1] > 0) {
+      secondaryEl.hidden = false;
+      secondaryEl.innerHTML = '';
+      const strong = document.createElement('strong');
+      strong.textContent = `【${PERSONAS[secondary].emoji} ${PERSONAS[secondary].name}】`;
+      secondaryEl.append('同时你也有较强的 ', strong, ' 倾向');
+    } else {
+      secondaryEl.hidden = true;
+    }
+
+    renderScoreBars(ranked);
+    setupShare(primary, ans);
+    showView('result');
+  }
+
+  function renderDesc(code) {
+    const lines = PERSONAS[code][currentVersion];
+    const wrap = $('personaDesc');
+    wrap.innerHTML = '';
+    lines.forEach((line) => {
+      const p = document.createElement('p');
+      p.textContent = line;
+      wrap.appendChild(p);
+    });
+  }
+
+  function renderScoreBars(ranked) {
+    const total = ranked.reduce((sum, [, v]) => sum + v, 0) || 1;
+    const wrap = $('scoreBars');
+    wrap.innerHTML = '';
+    ranked.slice(0, 3).forEach(([code, score], i) => {
+      const pct = Math.round((score / total) * 100);
+      const row = document.createElement('div');
+      row.className = 'score-bar-row';
+      row.innerHTML =
+        `<span class="score-bar-name"></span>` +
+        `<div class="score-bar-track"><div class="score-bar-fill${i === 0 ? ' primary' : ''}" style="width:${pct}%"></div></div>` +
+        `<span class="score-bar-pct">${pct}%</span>`;
+      row.querySelector('.score-bar-name').textContent =
+        `${PERSONAS[code].emoji} ${PERSONAS[code].name}`;
+      wrap.appendChild(row);
+    });
+  }
+
+  /* ─── 版本切换 ─── */
+  function setVersion(version) {
+    currentVersion = version;
+    $('versionSoftBtn').classList.toggle('active', version === 'soft');
+    $('versionBoldBtn').classList.toggle('active', version === 'bold');
+    if (resultAnswers) {
+      const ranked = rankScores(computeScores(resultAnswers));
+      renderDesc(ranked[0][0]);
+    }
+  }
+
+  /* ─── 分享 ─── */
+  function resultUrl(ans) {
+    return `${QUIZ_URL}?a=${encodeAnswers(ans)}`;
+  }
+
+  function setupShare(primaryCode, ans) {
+    const persona = PERSONAS[primaryCode];
+    const text = `我测出来的开放性关系人格是【${persona.name}】—— ${persona.tagline}。你敢来测测吗？`;
+    $('shareXBtn').href =
+      'https://twitter.com/intent/tweet' +
+      `?text=${encodeURIComponent(text)}&url=${encodeURIComponent(resultUrl(ans))}`;
+  }
+
+  function showToast(msg) {
+    const toast = $('toast');
+    toast.textContent = msg;
+    toast.hidden = false;
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => { toast.hidden = true; }, 2200);
+  }
+
+  async function copyResultLink() {
+    const url = resultUrl(resultAnswers);
+    try {
+      await navigator.clipboard.writeText(url);
+      showToast('链接已复制，快发给 TA 吧');
+    } catch (e) {
+      // 剪贴板不可用（如非 https）时降级为手动复制
+      window.prompt('长按/全选复制下面的链接：', url);
+    }
+  }
+
+  async function inviteShare() {
+    const url = resultUrl(resultAnswers);
+    const text = '测测你的开放性关系人格，看看我们默契度有多高 👀';
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: '开放性关系人格测试', text, url });
+        return;
+      } catch (e) {
+        if (e && e.name === 'AbortError') return;
+      }
+    }
+    copyResultLink();
+  }
+
+  /* ─── 分享卡片（Canvas） ─── */
+  function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  function wrapLines(ctx, text, maxWidth) {
+    const lines = [];
+    let line = '';
+    for (const ch of text) {
+      if (ctx.measureText(line + ch).width > maxWidth && line) {
+        lines.push(line);
+        line = ch;
+      } else {
+        line += ch;
+      }
+    }
+    if (line) lines.push(line);
+    return lines;
+  }
+
+  function drawShareCard(primaryCode, ranked) {
+    const persona = PERSONAS[primaryCode];
+    const W = 1080;
+    const H = 1350;
+    const canvas = document.createElement('canvas');
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    const ACCENT = '#e04b2e';
+    const FG = '#2b2622';
+    const MUTED = '#8a8378';
+    const FONT = '-apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
+
+    // 背景
+    const bg = ctx.createLinearGradient(0, 0, 0, H);
+    bg.addColorStop(0, '#fffdfb');
+    bg.addColorStop(1, '#fdeee7');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    // 装饰圆
+    ctx.globalAlpha = 0.07;
+    ctx.fillStyle = ACCENT;
+    ctx.beginPath();
+    ctx.arc(W - 80, 140, 260, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(60, H - 120, 200, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+
+    ctx.textAlign = 'center';
+
+    // 顶部品牌
+    ctx.fillStyle = MUTED;
+    ctx.font = `600 34px ${FONT}`;
+    ctx.fillText('多人成行 · 开放性关系人格测试', W / 2, 110);
+
+    // kicker
+    ctx.fillStyle = FG;
+    ctx.font = `500 44px ${FONT}`;
+    ctx.fillText('我的开放性关系人格是', W / 2, 250);
+
+    // emoji
+    ctx.font = `160px ${FONT}`;
+    ctx.fillText(persona.emoji, W / 2, 460);
+
+    // 结果名
+    ctx.fillStyle = ACCENT;
+    const nameSize = persona.name.length > 6 ? 84 : 108;
+    ctx.font = `800 ${nameSize}px ${FONT}`;
+    ctx.fillText(persona.name, W / 2, 610);
+
+    // tagline
+    ctx.fillStyle = FG;
+    ctx.font = `500 42px ${FONT}`;
+    ctx.fillText(persona.tagline, W / 2, 700);
+
+    // 描述卡片（当前版本前 3 行）
+    const cardX = 90;
+    const cardW = W - 180;
+    const cardY = 760;
+    ctx.font = `400 36px ${FONT}`;
+    const descLines = [];
+    for (const line of PERSONAS[primaryCode][currentVersion].slice(0, 3)) {
+      descLines.push(...wrapLines(ctx, line, cardW - 100));
+    }
+    const lineH = 58;
+    const cardH = descLines.length * lineH + 90;
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    roundRect(ctx, cardX, cardY, cardW, cardH, 32);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(224,75,46,0.25)';
+    ctx.lineWidth = 2;
+    roundRect(ctx, cardX, cardY, cardW, cardH, 32);
+    ctx.stroke();
+    ctx.fillStyle = FG;
+    descLines.forEach((line, i) => {
+      ctx.fillText(line, W / 2, cardY + 70 + i * lineH);
+    });
+
+    // 主导占比
+    const total = ranked.reduce((sum, [, v]) => sum + v, 0) || 1;
+    const pct = Math.round((ranked[0][1] / total) * 100);
+    ctx.fillStyle = MUTED;
+    ctx.font = `500 34px ${FONT}`;
+    ctx.fillText(`主导倾向占比 ${pct}% · 次要倾向【${PERSONAS[ranked[1][0]].name}】`, W / 2, cardY + cardH + 70);
+
+    // 底部 CTA
+    ctx.fillStyle = ACCENT;
+    roundRect(ctx, W / 2 - 330, H - 190, 660, 96, 48);
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.font = `700 40px ${FONT}`;
+    ctx.fillText('你也来测测 👉 duorenchengxing.com', W / 2, H - 128);
+
+    return canvas;
+  }
+
+  async function shareCard() {
+    const ranked = rankScores(computeScores(resultAnswers));
+    const canvas = drawShareCard(ranked[0][0], ranked);
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+    if (!blob) {
+      showToast('生成卡片失败，请重试');
+      return;
+    }
+    const file = new File([blob], 'kaifang-quiz-result.png', { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: '开放性关系人格测试' });
+        return;
+      } catch (e) {
+        if (e && e.name === 'AbortError') return;
+      }
+    }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'kaifang-quiz-result.png';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    showToast('卡片已保存');
+  }
+
+  /* ─── 初始化 ─── */
+  function init() {
+    initAgeGate();
+
+    $('startBtn').addEventListener('click', startQuiz);
+    $('prevBtn').addEventListener('click', () => {
+      if (currentQ > 0) {
+        currentQ -= 1;
+        renderQuestion();
+      }
+    });
+    $('versionSoftBtn').addEventListener('click', () => setVersion('soft'));
+    $('versionBoldBtn').addEventListener('click', () => setVersion('bold'));
+    $('shareCardBtn').addEventListener('click', shareCard);
+    $('copyLinkBtn').addEventListener('click', copyResultLink);
+    $('inviteBtn').addEventListener('click', inviteShare);
+    $('retakeBtn').addEventListener('click', startQuiz);
+    $('sharedRetakeBtn').addEventListener('click', () => {
+      history.replaceState(null, '', location.pathname);
+      startQuiz();
+    });
+
+    // ?a=<20位ABCD> 直达结果页
+    const shared = decodeAnswers(new URLSearchParams(location.search).get('a'));
+    if (shared) {
+      showResult(shared, true);
+    } else {
+      showView('intro');
+    }
+  }
+
+  init();
+}
