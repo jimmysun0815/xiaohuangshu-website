@@ -481,10 +481,13 @@ function computeDimensions(answers) {
     let sum = 0;
     let max = 0;
     for (const qi in d.map) {
-      sum += d.map[qi][answers[qi]];
+      const a = answers[qi];
+      // 跳过缺失/非法的答案，只按已答题目归一化，避免 NaN
+      if (!(a >= 0 && a <= 3)) continue;
+      sum += d.map[qi][a];
       max += Math.max.apply(null, d.map[qi]);
     }
-    const score = Math.round((sum / max) * 100);
+    const score = max > 0 ? Math.round((sum / max) * 100) : 0;
     const band = score >= 70 ? 'high' : score >= 40 ? 'mid' : 'low';
     return { key: d.key, name: d.name, score, band, description: d.desc[band] };
   });
@@ -577,7 +580,12 @@ if (typeof document !== 'undefined') {
   }
 
   /* ─── 答题 ─── */
+  // 选项点击后到进入下一题之间有 180ms 过渡，期间锁住点击，
+  // 防止快速连点把一次点击当成两题的答案、跳过中间的题（会造成答案空洞）
+  let advancing = false;
+
   function renderQuestion() {
+    advancing = false;
     const q = QUESTIONS[currentQ];
     $('progressText').textContent = `${currentQ + 1} / ${QUESTIONS.length}`;
     $('progressFill').style.width = `${((currentQ) / QUESTIONS.length) * 100}%`;
@@ -595,6 +603,8 @@ if (typeof document !== 'undefined') {
         `<span class="option-text"></span>`;
       btn.querySelector('.option-text').textContent = opt.text;
       btn.addEventListener('click', () => {
+        if (advancing) return;
+        advancing = true;
         answers[currentQ] = idx;
         btn.classList.add('selected');
         setTimeout(() => {
@@ -1063,7 +1073,7 @@ if (typeof document !== 'undefined') {
 
     $('startBtn').addEventListener('click', startQuiz);
     $('prevBtn').addEventListener('click', () => {
-      if (currentQ > 0) {
+      if (!advancing && currentQ > 0) {
         currentQ -= 1;
         renderQuestion();
       }
