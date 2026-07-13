@@ -12,12 +12,43 @@
   display: none !important;
 }
 
+/* ─── 全页暗色主题（入口/答题/结果统一）───
+   quiz.css 在 styles.css 之后加载，直接在 body 上覆写设计 token，
+   所有用 token 的组件（卡片/选项/条形图/头尾）自动切换到暗色。 */
+body {
+  color-scheme: dark;
+  --background: #0d0710;
+  --foreground: #f2edf0;
+  --card: #191021;
+  --card-foreground: #f2edf0;
+  --secondary: #241627;
+  --secondary-foreground: #e8dfe5;
+  --muted: #291c2f;
+  --muted-foreground: #a795a2;
+  --border: rgba(255, 255, 255, 0.1);
+  background: #0d0710;
+  color: var(--foreground);
+}
+
+/* 氛围光晕铺满整站（入口页最明显，答题/结果页做低调底色） */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(55% 40% at 72% 6%, rgba(142, 42, 92, 0.32), transparent 70%),
+    radial-gradient(50% 45% at 18% 88%, rgba(196, 52, 46, 0.2), transparent 70%),
+    radial-gradient(130% 90% at 50% 0%, #221024 0%, #130814 52%, #0d0710 100%);
+  animation: introGlow 9s ease-in-out infinite;
+}
+
 /* ─── 18+ 遮罩 ─── */
 .age-overlay {
   position: fixed;
   inset: 0;
   z-index: 100;
-  background: color-mix(in srgb, var(--foreground) 60%, transparent);
+  background: rgba(8, 5, 10, 0.72);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   display: flex;
@@ -92,54 +123,9 @@
 }
 
 /* ─── 入口页（暗色氛围，PRD 方案A） ─── */
-body.intro-dark {
-  background: #0d0710;
-}
-
-/* 氛围背景：深紫→黑渐变 + 两团缓慢呼吸的暗色光晕 */
-body.intro-dark::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  background:
-    radial-gradient(55% 40% at 72% 6%, rgba(142, 42, 92, 0.32), transparent 70%),
-    radial-gradient(50% 45% at 18% 88%, rgba(196, 52, 46, 0.2), transparent 70%),
-    radial-gradient(130% 90% at 50% 0%, #221024 0%, #130814 52%, #0d0710 100%);
-  animation: introGlow 9s ease-in-out infinite;
-}
-
 @keyframes introGlow {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.75; }
-}
-
-body.intro-dark .site-header {
-  background: transparent;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  border-bottom-color: rgba(255, 255, 255, 0.08);
-}
-
-body.intro-dark .brand {
-  color: #fff;
-}
-
-body.intro-dark .quiz-header-tag {
-  color: rgba(255, 255, 255, 0.45);
-}
-
-body.intro-dark .site-footer {
-  background: transparent;
-  border-top-color: rgba(255, 255, 255, 0.08);
-}
-
-body.intro-dark .site-footer-inner {
-  color: rgba(255, 255, 255, 0.35);
-}
-
-body.intro-dark .site-footer a {
-  color: rgba(255, 255, 255, 0.5);
 }
 
 .intro-hero {
@@ -258,7 +244,7 @@ body.intro-dark .site-footer a {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  body.intro-dark::before,
+  body::before,
   .intro-kicker,
   .intro-title,
   .intro-sub,
@@ -409,12 +395,6 @@ body.intro-dark .site-footer a {
   color: var(--muted-foreground);
   font-size: 1rem;
   margin-bottom: 1rem;
-}
-
-.persona-emoji {
-  font-size: 4.5rem;
-  line-height: 1;
-  margin-bottom: 0.75rem;
 }
 
 .persona-name {

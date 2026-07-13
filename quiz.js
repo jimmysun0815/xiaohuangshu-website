@@ -559,8 +559,6 @@ if (typeof document !== 'undefined') {
   function showView(name) {
     Object.values(views).forEach((v) => v.classList.remove('active'));
     views[name].classList.add('active');
-    // 入口页用暗色氛围主题，答题/结果页保持亮色
-    document.body.classList.toggle('intro-dark', name === 'intro');
     window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
   }
 
@@ -641,7 +639,6 @@ if (typeof document !== 'undefined') {
     const pct = matchPercents(ranked);
 
     $('sharedBanner').hidden = !isShared;
-    $('personaEmoji').textContent = persona.emoji;
     $('personaName').textContent = persona.name;
     $('matchPercent').textContent = `${pct.primary}%`;
     $('mixedHint').hidden = !pct.mixed;
@@ -755,7 +752,7 @@ if (typeof document !== 'undefined') {
       '<strong></strong>' +
       '<svg class="icon chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>';
     chip.querySelector('strong').textContent =
-      `【${persona.emoji} ${persona.name}】${percent}%`;
+      `【${persona.name}】${percent}%`;
     chip.addEventListener('click', () => {
       const open = cardEl.hidden;
       cardEl.hidden = !open;
@@ -766,7 +763,7 @@ if (typeof document !== 'undefined') {
     cardEl.innerHTML = '';
     const head = document.createElement('p');
     head.className = 'secondary-card-head';
-    head.textContent = `${persona.emoji} ${persona.name} · ${persona.tagline}`;
+    head.textContent = `${persona.name} · ${persona.tagline}`;
     cardEl.appendChild(head);
     persona[currentVersion].forEach((line) => {
       const p = document.createElement('p');
@@ -889,41 +886,37 @@ if (typeof document !== 'undefined') {
     // kicker
     ctx.fillStyle = FG;
     ctx.font = `500 44px ${FONT}`;
-    ctx.fillText('我的开放性关系人格是', W / 2, 250);
-
-    // emoji
-    ctx.font = `160px ${FONT}`;
-    ctx.fillText(persona.emoji, W / 2, 460);
+    ctx.fillText('我的开放性关系人格是', W / 2, 280);
 
     // 结果名
     ctx.fillStyle = ACCENT;
-    const nameSize = persona.name.length > 6 ? 84 : 108;
+    const nameSize = persona.name.length > 6 ? 96 : 120;
     ctx.font = `800 ${nameSize}px ${FONT}`;
-    ctx.fillText(persona.name, W / 2, 610);
+    ctx.fillText(persona.name, W / 2, 460);
 
     // 匹配度
     const pct = matchPercents(ranked);
     ctx.fillStyle = FG;
     ctx.font = `700 40px ${FONT}`;
-    ctx.fillText(`匹配度 ${pct.primary}%`, W / 2, 676);
+    ctx.fillText(`匹配度 ${pct.primary}%`, W / 2, 538);
 
     // tagline
     ctx.fillStyle = FG;
     ctx.font = `500 42px ${FONT}`;
-    ctx.fillText(persona.tagline, W / 2, 740);
+    ctx.fillText(persona.tagline, W / 2, 606);
 
-    // 描述卡片（露骨版前 3 句，最多渲染 4 行，超出加省略号）
+    // 描述卡片（露骨版前 3 句，最多渲染 5 行，超出加省略号）
     const cardX = 90;
     const cardW = W - 180;
-    const cardY = 768;
+    const cardY = 665;
     ctx.font = `400 36px ${FONT}`;
     const rawLines = [];
     for (const line of PERSONAS[primaryCode][currentVersion].slice(0, 3)) {
       rawLines.push(...wrapLines(ctx, line, cardW - 100));
     }
-    const descLines = rawLines.slice(0, 4);
-    if (rawLines.length > 4) {
-      descLines[3] = `${descLines[3].slice(0, -2)}……`;
+    const descLines = rawLines.slice(0, 5);
+    if (rawLines.length > 5) {
+      descLines[4] = `${descLines[4].slice(0, -2)}……`;
     }
     const lineH = 58;
     const cardH = descLines.length * lineH + 90;
