@@ -444,7 +444,8 @@ if (typeof document !== 'undefined') {
 
   let answers = [];
   let currentQ = 0;
-  let currentVersion = 'soft'; // 'soft' | 'bold'
+  // 文案固定用露骨版（含蓄版数据保留在 PERSONAS.soft，需要时可加回切换开关）
+  const currentVersion = 'bold';
   let resultAnswers = null; // 当前结果页对应的答案
 
   function showView(name) {
@@ -525,21 +526,49 @@ if (typeof document !== 'undefined') {
     $('personaName').textContent = persona.name;
     $('personaTagline').textContent = persona.tagline;
     renderDesc(primary);
+    renderSecondary(secondary, ranked[1][1]);
 
-    const secondaryEl = $('secondaryHint');
-    if (ranked[1][1] > 0) {
-      secondaryEl.hidden = false;
-      secondaryEl.innerHTML = '';
-      const strong = document.createElement('strong');
-      strong.textContent = `【${PERSONAS[secondary].emoji} ${PERSONAS[secondary].name}】`;
-      secondaryEl.append('同时你也有较强的 ', strong, ' 倾向');
-    } else {
-      secondaryEl.hidden = true;
-    }
+    // 纯爱战神不引导下载，其余结果都展示 CTA
+    $('ctaBanner').hidden = primary === 'PL';
 
-    renderScoreBars(ranked);
-    setupShare(primary, ans);
     showView('result');
+  }
+
+  function renderSecondary(code, score) {
+    const hintEl = $('secondaryHint');
+    const cardEl = $('secondaryCard');
+    cardEl.hidden = true;
+    if (score <= 0) {
+      hintEl.hidden = true;
+      return;
+    }
+    const persona = PERSONAS[code];
+    hintEl.hidden = false;
+    hintEl.innerHTML = '';
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'secondary-chip';
+    chip.innerHTML =
+      '<strong></strong>' +
+      '<svg class="icon chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>';
+    chip.querySelector('strong').textContent = `【${persona.emoji} ${persona.name}】`;
+    chip.addEventListener('click', () => {
+      const open = cardEl.hidden;
+      cardEl.hidden = !open;
+      chip.classList.toggle('open', open);
+    });
+    hintEl.append('同时你也有较强的 ', chip, ' 倾向');
+
+    cardEl.innerHTML = '';
+    const head = document.createElement('p');
+    head.className = 'secondary-card-head';
+    head.textContent = `${persona.emoji} ${persona.name} · ${persona.tagline}`;
+    cardEl.appendChild(head);
+    persona[currentVersion].forEach((line) => {
+      const p = document.createElement('p');
+      p.textContent = line;
+      cardEl.appendChild(p);
+    });
   }
 
   function renderDesc(code) {
@@ -553,46 +582,9 @@ if (typeof document !== 'undefined') {
     });
   }
 
-  function renderScoreBars(ranked) {
-    const total = ranked.reduce((sum, [, v]) => sum + v, 0) || 1;
-    const wrap = $('scoreBars');
-    wrap.innerHTML = '';
-    ranked.slice(0, 3).forEach(([code, score], i) => {
-      const pct = Math.round((score / total) * 100);
-      const row = document.createElement('div');
-      row.className = 'score-bar-row';
-      row.innerHTML =
-        `<span class="score-bar-name"></span>` +
-        `<div class="score-bar-track"><div class="score-bar-fill${i === 0 ? ' primary' : ''}" style="width:${pct}%"></div></div>` +
-        `<span class="score-bar-pct">${pct}%</span>`;
-      row.querySelector('.score-bar-name').textContent =
-        `${PERSONAS[code].emoji} ${PERSONAS[code].name}`;
-      wrap.appendChild(row);
-    });
-  }
-
-  /* ─── 版本切换 ─── */
-  function setVersion(version) {
-    currentVersion = version;
-    $('versionSoftBtn').classList.toggle('active', version === 'soft');
-    $('versionBoldBtn').classList.toggle('active', version === 'bold');
-    if (resultAnswers) {
-      const ranked = rankScores(computeScores(resultAnswers));
-      renderDesc(ranked[0][0]);
-    }
-  }
-
   /* ─── 分享 ─── */
   function resultUrl(ans) {
     return `${QUIZ_URL}?a=${encodeAnswers(ans)}`;
-  }
-
-  function setupShare(primaryCode, ans) {
-    const persona = PERSONAS[primaryCode];
-    const text = `我测出来的开放性关系人格是【${persona.name}】—— ${persona.tagline}。你敢来测测吗？`;
-    $('shareXBtn').href =
-      'https://twitter.com/intent/tweet' +
-      `?text=${encodeURIComponent(text)}&url=${encodeURIComponent(resultUrl(ans))}`;
   }
 
   function showToast(msg) {
@@ -735,12 +727,12 @@ if (typeof document !== 'undefined') {
       ctx.fillText(line, W / 2, cardY + 70 + i * lineH);
     });
 
-    // 主导占比
-    const total = ranked.reduce((sum, [, v]) => sum + v, 0) || 1;
-    const pct = Math.round((ranked[0][1] / total) * 100);
-    ctx.fillStyle = MUTED;
-    ctx.font = `500 34px ${FONT}`;
-    ctx.fillText(`主导倾向占比 ${pct}% · 次要倾向【${PERSONAS[ranked[1][0]].name}】`, W / 2, cardY + cardH + 70);
+    // 次要倾向
+    if (ranked[1][1] > 0) {
+      ctx.fillStyle = MUTED;
+      ctx.font = `500 34px ${FONT}`;
+      ctx.fillText(`同时也有【${PERSONAS[ranked[1][0]].name}】倾向`, W / 2, cardY + cardH + 70);
+    }
 
     // 底部 CTA
     ctx.fillStyle = ACCENT;
@@ -791,8 +783,6 @@ if (typeof document !== 'undefined') {
         renderQuestion();
       }
     });
-    $('versionSoftBtn').addEventListener('click', () => setVersion('soft'));
-    $('versionBoldBtn').addEventListener('click', () => setVersion('bold'));
     $('shareCardBtn').addEventListener('click', shareCard);
     $('copyLinkBtn').addEventListener('click', copyResultLink);
     $('inviteBtn').addEventListener('click', inviteShare);

@@ -108,38 +108,23 @@
           <p class="persona-tagline" id="personaTagline"></p>
         </div>
 
-        <div class="version-toggle" role="group" aria-label="文案版本">
-          <button class="version-btn active" id="versionSoftBtn" type="button">含蓄版</button>
-          <button class="version-btn" id="versionBoldBtn" type="button">露骨版 🔥</button>
-        </div>
-
         <div class="result-desc card-surface" id="personaDesc"></div>
 
         <div class="secondary-hint" id="secondaryHint"></div>
-
-        <div class="score-card card-surface">
-          <h3>倾向分布</h3>
-          <div class="score-bars" id="scoreBars"></div>
-        </div>
+        <div class="secondary-card card-surface" id="secondaryCard" hidden></div>
 
         <div class="share-card-wrap card-surface">
           <h3>分享你的结果</h3>
-          <p class="share-sub">生成专属卡片，或直接把测试甩给 TA。</p>
+          <p class="share-sub">生成一张专属结果卡片图，发到 X 或甩给 TA。</p>
           <div class="share-grid">
-            <button class="btn btn-primary" id="shareCardBtn" type="button">
+            <button class="btn btn-primary btn-lg" id="shareCardBtn" type="button">
               <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                 <circle cx="8.5" cy="8.5" r="1.5"></circle>
                 <polyline points="21 15 16 10 5 21"></polyline>
               </svg>
-              保存分享卡片
+              分享卡片图
             </button>
-            <a class="btn btn-dark" id="shareXBtn" target="_blank" rel="noopener noreferrer">
-              <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-              </svg>
-              分享到 X
-            </a>
             <button class="btn btn-outline" id="copyLinkBtn" type="button">
               <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
@@ -150,12 +135,31 @@
           </div>
         </div>
 
-        <div class="cta-banner quiz-cta">
+        <div class="cta-banner quiz-cta" id="ctaBanner">
           <h2>找到跟你同频的人</h2>
           <p>下载「多人成行」，和同类型的人一起组局开玩。</p>
           <div class="quiz-cta-actions">
-            <a class="btn btn-lg btn-inverse" href="https://apps.apple.com/ca/app/%E5%A4%9A%E4%BA%BA%E6%88%90%E8%A1%8C/id6768154202" target="_blank" rel="noopener noreferrer"> App Store</a>
-            <a class="btn btn-lg btn-inverse" href="https://play.google.com/store/apps/details?id=com.worksonmymachine.naughtgame&hl=zh" target="_blank" rel="noopener noreferrer">Google Play</a>
+            <a class="store-badge" href="https://apps.apple.com/ca/app/%E5%A4%9A%E4%BA%BA%E6%88%90%E8%A1%8C/id6768154202" target="_blank" rel="noopener noreferrer">
+              <svg class="store-badge-logo" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+              </svg>
+              <span class="store-badge-text">
+                <span class="store-badge-small">Download on the</span>
+                <span class="store-badge-big">App Store</span>
+              </span>
+            </a>
+            <a class="store-badge" href="https://play.google.com/store/apps/details?id=com.worksonmymachine.naughtgame&hl=zh" target="_blank" rel="noopener noreferrer">
+              <svg class="store-badge-logo" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="#34A853" d="M16.81 14.982 6.05 21.083l-.144.083a1.5 1.5 0 0 1-2.193-1.32V4.156a1.5 1.5 0 0 1 2.337-1.246l10.76 6.108L13.792 12z"/>
+                <path fill="#FBBC04" d="m19.756 10.66-2.946-1.642-3.018 2.982 3.018 2.982 2.946-1.642a2.06 2.06 0 0 0 0-2.68z"/>
+                <path fill="#EA4335" d="M16.81 9.018 6.05 2.917l-.144-.083a1.498 1.498 0 0 0-1.71.121l9.595 9.045z"/>
+                <path fill="#4285F4" d="M4.197 21.045a1.5 1.5 0 0 0 1.71.121l.144-.083 10.759-6.1-3.018-2.983z"/>
+              </svg>
+              <span class="store-badge-text">
+                <span class="store-badge-small">GET IT ON</span>
+                <span class="store-badge-big">Google Play</span>
+              </span>
+            </a>
           </div>
           <button class="quiz-cta-invite" id="inviteBtn" type="button">💌 邀请对象一起测，看看你们的默契度</button>
         </div>
