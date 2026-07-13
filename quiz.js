@@ -626,11 +626,14 @@ if (typeof document !== 'undefined') {
     ctx.closePath();
   }
 
+  // 标点不允许悬在行首（宁可让上一行略超宽）
+  const NO_LINE_START = '。，、！？；：）》」"…—';
+
   function wrapLines(ctx, text, maxWidth) {
     const lines = [];
     let line = '';
     for (const ch of text) {
-      if (ctx.measureText(line + ch).width > maxWidth && line) {
+      if (ctx.measureText(line + ch).width > maxWidth && line && !NO_LINE_START.includes(ch)) {
         lines.push(line);
         line = ch;
       } else {
@@ -699,14 +702,18 @@ if (typeof document !== 'undefined') {
     ctx.font = `500 42px ${FONT}`;
     ctx.fillText(persona.tagline, W / 2, 700);
 
-    // 描述卡片（当前版本前 3 行）
+    // 描述卡片（露骨版前 3 句，最多渲染 4 行，超出加省略号）
     const cardX = 90;
     const cardW = W - 180;
-    const cardY = 760;
+    const cardY = 755;
     ctx.font = `400 36px ${FONT}`;
-    const descLines = [];
+    const rawLines = [];
     for (const line of PERSONAS[primaryCode][currentVersion].slice(0, 3)) {
-      descLines.push(...wrapLines(ctx, line, cardW - 100));
+      rawLines.push(...wrapLines(ctx, line, cardW - 100));
+    }
+    const descLines = rawLines.slice(0, 4);
+    if (rawLines.length > 4) {
+      descLines[3] = `${descLines[3].slice(0, -2)}……`;
     }
     const lineH = 58;
     const cardH = descLines.length * lineH + 90;
@@ -722,20 +729,28 @@ if (typeof document !== 'undefined') {
       ctx.fillText(line, W / 2, cardY + 70 + i * lineH);
     });
 
+    // 卡片以下的元素从卡片底部起依次向下排，避免固定坐标互相压住
+    let y = cardY + cardH;
+
     // 次要倾向
     if (ranked[1][1] > 0) {
+      y += 60;
       ctx.fillStyle = MUTED;
       ctx.font = `500 34px ${FONT}`;
-      ctx.fillText(`同时也有【${PERSONAS[ranked[1][0]].name}】倾向`, W / 2, cardY + cardH + 70);
+      ctx.fillText(`同时也有【${PERSONAS[ranked[1][0]].name}】倾向`, W / 2, y);
     }
 
     // 底部 CTA
+    const pillTop = y + 40;
     ctx.fillStyle = ACCENT;
-    roundRect(ctx, W / 2 - 330, H - 190, 660, 96, 48);
+    roundRect(ctx, W / 2 - 160, pillTop, 320, 96, 48);
     ctx.fill();
     ctx.fillStyle = '#ffffff';
-    ctx.font = `700 40px ${FONT}`;
-    ctx.fillText('你也来测测 👉 duorenchengxing.com', W / 2, H - 128);
+    ctx.font = `700 42px ${FONT}`;
+    ctx.fillText('测测我的', W / 2, pillTop + 62);
+    ctx.fillStyle = MUTED;
+    ctx.font = `500 30px ${FONT}`;
+    ctx.fillText('duorenchengxing.com/quiz.html', W / 2, pillTop + 150);
 
     return canvas;
   }
