@@ -582,12 +582,12 @@ if (typeof document !== 'undefined') {
     });
   }
 
-  function showToast(msg) {
+  function showToast(msg, duration) {
     const toast = $('toast');
     toast.textContent = msg;
     toast.hidden = false;
     clearTimeout(showToast._t);
-    showToast._t = setTimeout(() => { toast.hidden = true; }, 2200);
+    showToast._t = setTimeout(() => { toast.hidden = true; }, duration || 2200);
   }
 
   // 分享一律给测试入口链接（不带答案参数），让对方自己测
@@ -808,29 +808,39 @@ if (typeof document !== 'undefined') {
           downloadBlob(blob);
         }
         window.open(intentUrl, '_blank');
-        showToast('卡片图已保存，发推时记得添加图片');
+        showToast('卡片图已保存，发推时记得添加图片', 5000);
         return;
       }
 
-      // 桌面端：趁用户点击手势还有效，先同步开好发推窗口（否则会被弹窗拦截）
-      const win = window.open('about:blank', '_blank');
-      const { blob } = await makeCardBlob();
+      // 桌面端。X 的网页 intent 不接受图片，只能：图进剪贴板 → 用户在推文框粘贴。
+      // 顺序很关键：必须先写剪贴板（此时本页还在焦点上，否则浏览器会拒绝写入），
+      // 再开发推窗口；画布是同步的，整个过程都在点击手势的有效期内。
+      const ranked2 = rankScores(computeScores(resultAnswers));
+      const canvas = drawShareCard(ranked2[0][0], ranked2);
+      const blobPromise = new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
       let copied = false;
-      if (blob && navigator.clipboard && window.ClipboardItem) {
+      if (navigator.clipboard && window.ClipboardItem) {
         try {
-          await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+          // ClipboardItem 接受 Promise<Blob>，Safari 也要求这种写法
+          await navigator.clipboard.write([
+            new ClipboardItem({ 'image/png': blobPromise }),
+          ]);
           copied = true;
         } catch (e) { /* 剪贴板不可用则降级下载 */ }
       }
-      if (!copied && blob) downloadBlob(blob);
-      if (win) {
-        win.location.href = intentUrl;
-      } else {
-        window.open(intentUrl, '_blank');
+      if (!copied) {
+        const blob = await blobPromise;
+        if (blob) downloadBlob(blob);
       }
-      showToast(copied ? '卡片图已复制，在推文里粘贴（Cmd/Ctrl+V）即可' : '卡片图已下载，拖进推文即可');
+      window.open(intentUrl, '_blank');
+      showToast(
+        copied
+          ? '卡片图已复制 ✅ 在推文框里按 Cmd/Ctrl+V 粘贴图片'
+          : '卡片图已下载，把它拖进推文框即可',
+        8000,
+      );
     } catch (err) {
-      showToast(`分享失败：${(err && err.message) || '未知错误'}`);
+      showToast(`分享失败：${(err && err.message) || '未知错误'}`, 5000);
     }
   }
 
