@@ -387,9 +387,113 @@ const PERSONAS = {
   },
 };
 
+/* ─── 匹配度（PRD §2 方案 B：理论最高分归一化） ───
+   每个类型的理论最高分 = 每题该类型能拿到的最大分之和；
+   百分比 = 实际得分 / 理论最高分，展示范围钳在 45%~98%。 */
+const THEORETICAL_MAX = (() => {
+  const max = {};
+  QUESTIONS.forEach((q) => {
+    const best = {};
+    q.options.forEach((o) => {
+      for (const c in o.scores) best[c] = Math.max(best[c] || 0, o.scores[c]);
+    });
+    for (const c in best) max[c] = (max[c] || 0) + best[c];
+  });
+  return max;
+})();
+
+function clampPct(v) {
+  return Math.max(45, Math.min(98, v));
+}
+
+function matchPercents(ranked) {
+  const [pCode, pScore] = ranked[0];
+  const [sCode, sScore] = ranked[1];
+  const primary = clampPct(Math.round((pScore / THEORETICAL_MAX[pCode]) * 100));
+  let secondary = clampPct(Math.round((sScore / (THEORETICAL_MAX[sCode] || 1)) * 100));
+  if (secondary >= primary) secondary = Math.max(45, primary - 7);
+  return {
+    primary,
+    secondary,
+    // 主次分差 ≤2 视为高度混合型（PRD §2.4）
+    mixed: sScore > 0 && pScore - sScore <= 2,
+  };
+}
+
+/* ─── 维度分析（PRD §3）───
+   map: 题目下标（0-based）→ [A,B,C,D] 各选项对该维度的贡献分（0~3），
+   维度得分 = Σ贡献 / Σ每题最大贡献 × 100。 */
+const DIMENSIONS = [
+  {
+    key: 'jealousyToExcitement',
+    name: '嫉妒-兴奋转化度',
+    map: { 0: [0, 1, 2, 3], 5: [0, 1, 2, 3], 6: [0, 1, 2, 3], 9: [0, 1, 2, 3], 10: [0, 1, 3, 1], 19: [0, 1, 2, 3] },
+    desc: {
+      high: '「被绿」对你更像燃料——嫉妒能直接转化成兴奋。',
+      mid: '嫉妒和兴奋在你身上并存，情境决定哪边占上风。',
+      low: '嫉妒就是嫉妒，你很难把它变成快感。',
+    },
+  },
+  {
+    key: 'agency',
+    name: '主动性',
+    map: { 1: [0, 1, 2, 3], 2: [0, 1, 1, 3], 7: [0, 1, 1, 3], 16: [0, 1, 1, 3] },
+    desc: {
+      high: '你倾向主动推动、亲自安排，而不是被动等它发生。',
+      mid: '你不排斥推动，但更愿意顺势而为。',
+      low: '你几乎不会主动推动开放，更多是接受或拒绝。',
+    },
+  },
+  {
+    key: 'sexLoveSeparation',
+    name: '性爱分离度',
+    map: { 3: [0, 2, 3, 2], 11: [0, 1, 2, 3], 13: [0, 1, 2, 2], 14: [0, 1, 2, 3], 15: [0, 2, 2, 3] },
+    desc: {
+      high: '你能把身体快感和情感连接分得很开。',
+      mid: '性和爱在你这里有分界，但不是完全独立。',
+      low: '对你来说，性和爱基本绑在一起。',
+    },
+  },
+  {
+    key: 'structurePreference',
+    name: '关系结构偏好',
+    map: { 4: [1, 0, 3, 1], 8: [0, 0, 1, 3], 13: [1, 0, 3, 1], 15: [0, 1, 2, 3] },
+    desc: {
+      high: '你喜欢大家像家人一样紧密共处的多边结构。',
+      mid: '你在共处与独立之间找平衡，看关系看人。',
+      low: '你更喜欢各自独立、互不打扰的平行结构。',
+    },
+  },
+  {
+    key: 'voyeurism',
+    name: '观看偏好',
+    map: { 2: [0, 0, 3, 2], 8: [0, 1, 3, 2], 9: [0, 1, 2, 3], 12: [0, 1, 3, 2], 17: [0, 1, 3, 2] },
+    desc: {
+      high: '旁观、听细节、看过程，本身就能让你兴奋。',
+      mid: '你对观看有兴趣，但它不是你的核心快感来源。',
+      low: '观看对你没什么吸引力——要么亲自参与，要么干脆不要。',
+    },
+  },
+];
+
+function computeDimensions(answers) {
+  return DIMENSIONS.map((d) => {
+    let sum = 0;
+    let max = 0;
+    for (const qi in d.map) {
+      sum += d.map[qi][answers[qi]];
+      max += Math.max.apply(null, d.map[qi]);
+    }
+    const score = Math.round((sum / max) * 100);
+    const band = score >= 70 ? 'high' : score >= 40 ? 'mid' : 'low';
+    return { key: d.key, name: d.name, score, band, description: d.desc[band] };
+  });
+}
+
 const OPTION_KEYS = ['A', 'B', 'C', 'D'];
 const QUIZ_URL = 'https://duorenchengxing.com/quiz.html';
 const AGE_KEY = 'quiz_age_verified';
+const LAST_KEY = 'quiz_last_answers';
 
 /* ─── 计分（§4.1 / §4.3） ─── */
 function computeScores(answers) {
@@ -427,8 +531,9 @@ function decodeAnswers(str) {
 /* ─── Node 环境导出（供计分逻辑测试用；浏览器里直接跳过） ─── */
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
-    QUESTIONS, PRIORITY, PERSONAS,
+    QUESTIONS, PRIORITY, PERSONAS, DIMENSIONS, THEORETICAL_MAX,
     computeScores, rankScores, encodeAnswers, decodeAnswers,
+    matchPercents, computeDimensions,
   };
 }
 
@@ -508,6 +613,7 @@ if (typeof document !== 'undefined') {
   function startQuiz() {
     answers = [];
     currentQ = 0;
+    try { localStorage.removeItem(LAST_KEY); } catch (e) { /* ignore */ }
     showView('quiz');
     renderQuestion();
   }
@@ -520,21 +626,106 @@ if (typeof document !== 'undefined') {
     const primary = ranked[0][0];
     const secondary = ranked[1][0];
     const persona = PERSONAS[primary];
+    const pct = matchPercents(ranked);
 
     $('sharedBanner').hidden = !isShared;
     $('personaEmoji').textContent = persona.emoji;
     $('personaName').textContent = persona.name;
+    $('matchPercent').textContent = `${pct.primary}%`;
+    $('mixedHint').hidden = !pct.mixed;
     $('personaTagline').textContent = persona.tagline;
     renderDesc(primary);
-    renderSecondary(secondary, ranked[1][1]);
+    renderSecondary(secondary, ranked[1][1], pct.secondary);
+    renderDimensions(ans);
 
     // 纯爱战神不引导下载，其余结果都展示 CTA
     $('ctaBanner').hidden = primary === 'PL';
 
+    // 缓存本人结果，刷新后还能看到（分享进来的不缓存）
+    if (!isShared) {
+      try { localStorage.setItem(LAST_KEY, encodeAnswers(ans)); } catch (e) { /* ignore */ }
+    }
+
     showView('result');
   }
 
-  function renderSecondary(code, score) {
+  /* ─── 维度画像（条形图 + 雷达图切换） ─── */
+  let radarShown = false;
+
+  function renderDimensions(ans) {
+    const dims = computeDimensions(ans);
+
+    const bars = $('dimsBars');
+    bars.innerHTML = '';
+    dims.forEach((d) => {
+      const row = document.createElement('div');
+      row.className = 'dim-row';
+      row.innerHTML =
+        '<div class="dim-top"><span class="dim-name"></span>' +
+        `<span class="dim-score lv-${d.band}">${d.score}</span></div>` +
+        `<div class="score-bar-track"><div class="score-bar-fill lv-${d.band}" style="width:${d.score}%"></div></div>` +
+        '<p class="dim-desc"></p>';
+      row.querySelector('.dim-name').textContent = d.name;
+      row.querySelector('.dim-desc').textContent = d.description;
+      bars.appendChild(row);
+    });
+
+    $('dimsRadar').innerHTML = radarSvg(dims);
+
+    // 每次出结果都回到条形图（PRD：移动端默认条形图）
+    radarShown = false;
+    bars.hidden = false;
+    $('dimsRadar').hidden = true;
+    $('dimsToggle').textContent = '雷达图';
+  }
+
+  function radarSvg(dims) {
+    const W = 480;
+    const H = 350;
+    const cx = W / 2;
+    const cy = 182;
+    const R = 105;
+    const pt = (i, r) => {
+      const a = (Math.PI * 2 * i) / dims.length - Math.PI / 2;
+      return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+    };
+    const poly = (f) =>
+      dims.map((_, i) => pt(i, R * f).map((n) => n.toFixed(1)).join(',')).join(' ');
+    const rings = [0.25, 0.5, 0.75, 1]
+      .map((f) => `<polygon points="${poly(f)}" class="radar-ring"/>`)
+      .join('');
+    const axes = dims
+      .map((_, i) => {
+        const [x, y] = pt(i, R);
+        return `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" class="radar-axis"/>`;
+      })
+      .join('');
+    const scorePts = dims
+      .map((d, i) => pt(i, (d.score / 100) * R).map((n) => n.toFixed(1)).join(','))
+      .join(' ');
+    const dots = dims
+      .map((d, i) => {
+        const [x, y] = pt(i, (d.score / 100) * R);
+        return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" class="radar-dot"/>`;
+      })
+      .join('');
+    const labels = dims
+      .map((d, i) => {
+        const [x, y] = pt(i, R + 24);
+        const anchor = Math.abs(x - cx) < 12 ? 'middle' : x > cx ? 'start' : 'end';
+        return `<text x="${x.toFixed(1)}" y="${(y + 4).toFixed(1)}" text-anchor="${anchor}" class="radar-label">${d.name} ${d.score}</text>`;
+      })
+      .join('');
+    return (
+      `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="维度雷达图">` +
+      rings + axes +
+      `<polygon points="${scorePts}" class="radar-area"/>` +
+      dots + labels +
+      '</svg>'
+    );
+  }
+
+  function renderSecondary(code, score, percent) {
     const hintEl = $('secondaryHint');
     const cardEl = $('secondaryCard');
     cardEl.hidden = true;
@@ -551,7 +742,8 @@ if (typeof document !== 'undefined') {
     chip.innerHTML =
       '<strong></strong>' +
       '<svg class="icon chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>';
-    chip.querySelector('strong').textContent = `【${persona.emoji} ${persona.name}】`;
+    chip.querySelector('strong').textContent =
+      `【${persona.emoji} ${persona.name}】${percent}%`;
     chip.addEventListener('click', () => {
       const open = cardEl.hidden;
       cardEl.hidden = !open;
@@ -697,15 +889,21 @@ if (typeof document !== 'undefined') {
     ctx.font = `800 ${nameSize}px ${FONT}`;
     ctx.fillText(persona.name, W / 2, 610);
 
+    // 匹配度
+    const pct = matchPercents(ranked);
+    ctx.fillStyle = FG;
+    ctx.font = `700 40px ${FONT}`;
+    ctx.fillText(`匹配度 ${pct.primary}%`, W / 2, 676);
+
     // tagline
     ctx.fillStyle = FG;
     ctx.font = `500 42px ${FONT}`;
-    ctx.fillText(persona.tagline, W / 2, 700);
+    ctx.fillText(persona.tagline, W / 2, 740);
 
     // 描述卡片（露骨版前 3 句，最多渲染 4 行，超出加省略号）
     const cardX = 90;
     const cardW = W - 180;
-    const cardY = 755;
+    const cardY = 768;
     ctx.font = `400 36px ${FONT}`;
     const rawLines = [];
     for (const line of PERSONAS[primaryCode][currentVersion].slice(0, 3)) {
@@ -737,7 +935,7 @@ if (typeof document !== 'undefined') {
       y += 60;
       ctx.fillStyle = MUTED;
       ctx.font = `500 34px ${FONT}`;
-      ctx.fillText(`同时也有【${PERSONAS[ranked[1][0]].name}】倾向`, W / 2, y);
+      ctx.fillText(`同时也有【${PERSONAS[ranked[1][0]].name}】倾向 ${pct.secondary}%`, W / 2, y);
     }
 
     // 底部 CTA
@@ -872,6 +1070,12 @@ if (typeof document !== 'undefined') {
     });
     $('shareXBtn').addEventListener('click', shareToX);
     $('shareCardBtn').addEventListener('click', shareCard);
+    $('dimsToggle').addEventListener('click', () => {
+      radarShown = !radarShown;
+      $('dimsBars').hidden = radarShown;
+      $('dimsRadar').hidden = !radarShown;
+      $('dimsToggle').textContent = radarShown ? '条形图' : '雷达图';
+    });
     $('copyLinkBtn').addEventListener('click', copyResultLink);
     $('inviteBtn').addEventListener('click', inviteShare);
     $('retakeBtn').addEventListener('click', startQuiz);
@@ -880,10 +1084,16 @@ if (typeof document !== 'undefined') {
       startQuiz();
     });
 
-    // ?a=<20位ABCD> 直达结果页
+    // ?a=<20位ABCD> 直达结果页；否则恢复本人上次的结果（PRD：缓存结果防刷新丢失）
     const shared = decodeAnswers(new URLSearchParams(location.search).get('a'));
     if (shared) {
       showResult(shared, true);
+      return;
+    }
+    let saved = null;
+    try { saved = decodeAnswers(localStorage.getItem(LAST_KEY)); } catch (e) { /* ignore */ }
+    if (saved) {
+      showResult(saved, false);
     } else {
       showView('intro');
     }

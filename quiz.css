@@ -319,6 +319,150 @@
   font-weight: 500;
 }
 
+/* 匹配度 */
+.match-row {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.match-num {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.match-label {
+  font-size: 0.9rem;
+  color: var(--muted-foreground);
+  font-weight: 600;
+}
+
+.mixed-hint {
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+  background: var(--muted);
+  display: inline-block;
+  padding: 0.25rem 0.875rem;
+  border-radius: 999px;
+  margin-bottom: 0.75rem;
+}
+
+/* ─── 维度画像 ─── */
+.dims-card {
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .dims-card { padding: 2rem; }
+}
+
+.dims-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.dims-head h3 {
+  font-size: 1.05rem;
+}
+
+.dims-toggle {
+  background: var(--muted);
+  border: none;
+  border-radius: 999px;
+  padding: 0.375rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+}
+
+.dims-toggle:hover {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--muted));
+}
+
+.dims-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 1.125rem;
+}
+
+.dim-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0.375rem;
+}
+
+.dim-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.dim-score {
+  font-size: 1rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.dim-desc {
+  margin-top: 0.375rem;
+  font-size: 0.8rem;
+  color: var(--muted-foreground);
+  line-height: 1.6;
+}
+
+/* 分数段配色：低=灰蓝，中=琥珀，高=主题红 */
+.dim-score.lv-low { color: #7d8ca3; }
+.dim-score.lv-mid { color: #d97706; }
+.dim-score.lv-high { color: var(--accent); }
+
+.score-bar-fill.lv-low { background: #9aa8bd; }
+.score-bar-fill.lv-mid { background: #f0a94b; }
+.score-bar-fill.lv-high { background: var(--accent); }
+
+/* 雷达图 */
+.dims-radar svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.radar-ring {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.radar-axis {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.radar-area {
+  fill: color-mix(in srgb, var(--accent) 22%, transparent);
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.radar-dot {
+  fill: var(--accent);
+}
+
+.radar-label {
+  font-size: 13px;
+  font-weight: 600;
+  fill: var(--foreground);
+}
+
 /* 版本切换 */
 .version-toggle {
   display: flex;
