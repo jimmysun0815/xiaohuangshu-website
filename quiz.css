@@ -6,6 +6,12 @@
   overflow: hidden;
 }
 
+/* 显式设置过 display 的元素（.age-overlay / .shared-banner 等）会覆盖
+   hidden 属性的 UA 样式，必须补一条兜底规则 */
+[hidden] {
+  display: none !important;
+}
+
 /* ─── 18+ 遮罩 ─── */
 .age-overlay {
   position: fixed;
