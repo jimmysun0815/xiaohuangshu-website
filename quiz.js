@@ -559,6 +559,8 @@ if (typeof document !== 'undefined') {
   function showView(name) {
     Object.values(views).forEach((v) => v.classList.remove('active'));
     views[name].classList.add('active');
+    // 入口页用暗色氛围主题，答题/结果页保持亮色
+    document.body.classList.toggle('intro-dark', name === 'intro');
     window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
   }
 

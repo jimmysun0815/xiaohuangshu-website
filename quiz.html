@@ -15,7 +15,7 @@
     />
     <meta property="og:type" content="website" />
     <link rel="stylesheet" href="./styles.css" />
-    <link rel="stylesheet" href="./quiz.css?v=6" />
+    <link rel="stylesheet" href="./quiz.css?v=7" />
   </head>
   <body>
     <!-- ─── 18+ 验证遮罩 ─── -->
@@ -44,34 +44,26 @@
     </header>
 
     <main class="quiz-main container">
-      <!-- ─── 介绍页 ─── -->
+      <!-- ─── 入口页（暗色氛围，PRD 方案A：情绪 + 悬念型） ─── -->
       <section class="view" id="viewIntro">
         <div class="intro-hero">
-          <div class="intro-emoji" aria-hidden="true">🧭</div>
-          <h1>开放性关系人格测试</h1>
-          <p class="intro-tagline">你以为你了解自己？20 道情景题，测出你对开放性关系的真实倾向。</p>
-          <div class="intro-meta">
-            <div class="intro-meta-item">
-              <span class="intro-meta-num">20</span>
-              <span class="intro-meta-label">道情景题</span>
-            </div>
-            <div class="intro-meta-item">
-              <span class="intro-meta-num">4-6</span>
-              <span class="intro-meta-label">分钟完成</span>
-            </div>
-            <div class="intro-meta-item">
-              <span class="intro-meta-num">9</span>
-              <span class="intro-meta-label">种人格结果</span>
-            </div>
-          </div>
-          <button class="btn btn-primary btn-lg btn-start" id="startBtn">
-            开始测试
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <p class="intro-kicker">开放性关系人格测试</p>
+          <h1 class="intro-title">你以为你了解自己？</h1>
+          <p class="intro-sub">
+            20 道情景题，测出你对开放性关系的真实倾向。<br />
+            结果可能让你沉默，也可能让你想立刻发给朋友。
+          </p>
+          <p class="intro-stats">20 道情景题&ensp;·&ensp;4-6 分钟&ensp;·&ensp;9 种人格结果</p>
+          <button class="intro-start" id="startBtn" type="button">
+            开始测试，看看你是哪种人
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <line x1="5" y1="12" x2="19" y2="12"></line>
               <polyline points="12 5 19 12 12 19"></polyline>
             </svg>
           </button>
+          <p class="intro-micro">测试免费，结果仅自己可见</p>
           <p class="intro-note">凭直觉作答，没有对错。答案只在你的设备上计算，不会上传。</p>
+          <p class="intro-social">已有 <strong>12,847</strong> 人完成测试</p>
         </div>
       </section>
 
@@ -200,6 +192,6 @@
 
     <div class="toast" id="toast" hidden></div>
 
-    <script src="./quiz.js?v=6"></script>
+    <script src="./quiz.js?v=7"></script>
   </body>
 </html>
