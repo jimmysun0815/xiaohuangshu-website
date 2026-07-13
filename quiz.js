@@ -582,11 +582,6 @@ if (typeof document !== 'undefined') {
     });
   }
 
-  /* ─── 分享 ─── */
-  function resultUrl(ans) {
-    return `${QUIZ_URL}?a=${encodeAnswers(ans)}`;
-  }
-
   function showToast(msg) {
     const toast = $('toast');
     toast.textContent = msg;
@@ -595,19 +590,19 @@ if (typeof document !== 'undefined') {
     showToast._t = setTimeout(() => { toast.hidden = true; }, 2200);
   }
 
+  // 分享一律给测试入口链接（不带答案参数），让对方自己测
   async function copyResultLink() {
-    const url = resultUrl(resultAnswers);
     try {
-      await navigator.clipboard.writeText(url);
-      showToast('链接已复制，快发给 TA 吧');
+      await navigator.clipboard.writeText(QUIZ_URL);
+      showToast('测试链接已复制，发给 TA 去测吧');
     } catch (e) {
       // 剪贴板不可用（如非 https）时降级为手动复制
-      window.prompt('长按/全选复制下面的链接：', url);
+      window.prompt('长按/全选复制下面的链接：', QUIZ_URL);
     }
   }
 
   async function inviteShare() {
-    const url = resultUrl(resultAnswers);
+    const url = QUIZ_URL;
     const text = '测测你的开放性关系人格，看看我们默契度有多高 👀';
     if (navigator.share) {
       try {
