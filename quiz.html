@@ -15,7 +15,7 @@
     />
     <meta property="og:type" content="website" />
     <link rel="stylesheet" href="./styles.css" />
-    <link rel="stylesheet" href="./quiz.css?v=14" />
+    <link rel="stylesheet" href="./quiz.css?v=15" />
   </head>
   <body>
     <!-- ─── 18+ 验证遮罩 ─── -->
@@ -63,7 +63,7 @@
           </button>
           <p class="intro-micro">测试免费，结果仅自己可见</p>
           <p class="intro-note">凭直觉作答，没有对错。答案只在你的设备上计算，不会上传。</p>
-          <p class="intro-social">已有 <strong>12,847</strong> 人完成测试</p>
+          <p class="intro-social">已有 <strong id="socialCount">128</strong> 人完成测试</p>
         </div>
       </section>
 
@@ -192,6 +192,7 @@
 
     <div class="toast" id="toast" hidden></div>
 
-    <script src="./quiz.js?v=14"></script>
+    <script src="./vendor/qrcode.js"></script>
+    <script src="./quiz.js?v=15"></script>
   </body>
 </html>

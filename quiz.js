@@ -548,6 +548,24 @@ const QUIZ_URL = 'https://duorenchengxing.com/quiz.html';
 const AGE_KEY = 'quiz_age_verified';
 const LAST_KEY = 'quiz_last_answers_v5';
 
+/* ─── 完成计数（真实数据，Supabase RPC，见 0035_quiz_completion_counter.sql）
+   跟客户端 / admin 共用同一个 anon key，访问控制全靠 RLS + security definer。 ─── */
+const SUPABASE_URL = 'https://smntepovprxaoxzebhxn.supabase.co';
+const SUPABASE_ANON_KEY =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtbnRlcG92cHJ4YW94emViaHhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MzUyODksImV4cCI6MjA5MzUxMTI4OX0.ri6OKFtsKRFgsL8Kbj_1mmoZXbR6ObgbSDNJqi-PX2Y';
+
+function callCounterRpc(fn) {
+  return fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`, {
+    method: 'POST',
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: '{}',
+  }).then((res) => (res.ok ? res.json() : Promise.reject(new Error(String(res.status)))));
+}
+
 /* ─── 计分（§4.1 / §4.3） ─── */
 function computeScores(answers) {
   const scores = {
@@ -662,6 +680,7 @@ if (typeof document !== 'undefined') {
             currentQ += 1;
             renderQuestion();
           } else {
+            bumpQuizCount(); // 只在真正做完 20 题时 +1（缓存恢复/分享链接不算）
             showResult(answers.slice(), false);
           }
         }, 180);
@@ -842,6 +861,23 @@ if (typeof document !== 'undefined') {
     });
   }
 
+  /* ─── 完成人数 ─── */
+  function setSocialCount(n) {
+    if (typeof n === 'number' && Number.isFinite(n)) {
+      $('socialCount').textContent = n.toLocaleString('en-US');
+    }
+  }
+
+  function fetchQuizCount() {
+    callCounterRpc('quiz_completion_count').then(setSocialCount).catch(() => {
+      /* 拉不到就保留 HTML 里的兜底值 */
+    });
+  }
+
+  function bumpQuizCount() {
+    callCounterRpc('increment_quiz_completions').then(setSocialCount).catch(() => {});
+  }
+
   function showToast(msg, duration) {
     const toast = $('toast');
     toast.textContent = msg;
@@ -959,10 +995,33 @@ if (typeof document !== 'undefined') {
     ctx.textAlign = 'center';
   }
 
+  /* 卡片右下角二维码（qrcode-generator，vendor/qrcode.js） */
+  function drawQr(ctx, text, x, y, size) {
+    if (typeof qrcode === 'undefined') return false;
+    try {
+      const qr = qrcode(0, 'M');
+      qr.addData(text);
+      qr.make();
+      const n = qr.getModuleCount();
+      const cell = size / n;
+      ctx.fillStyle = '#1c1614';
+      for (let r = 0; r < n; r++) {
+        for (let c = 0; c < n; c++) {
+          if (qr.isDark(r, c)) {
+            ctx.fillRect(x + c * cell, y + r * cell, cell + 0.4, cell + 0.4);
+          }
+        }
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   function drawShareCard(primaryCode, ranked) {
     const persona = PERSONAS[primaryCode];
     const W = 1080;
-    const H = 1540;
+    const H = 1620;
     const canvas = document.createElement('canvas');
     canvas.width = W;
     canvas.height = H;
@@ -1030,7 +1089,13 @@ if (typeof document !== 'undefined') {
     }
     const descLines = rawLines.slice(0, 3);
     if (rawLines.length > 3) {
-      descLines[2] = `${descLines[2].slice(0, -2)}……`;
+      // 末行太短时并入上一行做省略，避免出现孤零零的"……"
+      if (descLines[2].length <= 4) {
+        descLines.pop();
+        descLines[1] = `${descLines[1].slice(0, -1)}……`;
+      } else {
+        descLines[2] = `${descLines[2].slice(0, -2)}……`;
+      }
     }
     const lineH = 58;
     const cardH = descLines.length * lineH + 90;
@@ -1058,20 +1123,28 @@ if (typeof document !== 'undefined') {
     }
 
     // 维度雷达图
-    const radarCY = y + 250;
+    const radarCY = y + 240;
     drawCanvasRadar(ctx, computeDimensions(resultAnswers), W / 2, radarCY, 150, FONT, FG, ACCENT);
 
-    // 底部 CTA
-    const pillTop = radarCY + 215;
-    ctx.fillStyle = ACCENT;
-    roundRect(ctx, W / 2 - 160, pillTop, 320, 96, 48);
-    ctx.fill();
+    // 底部：扫码直达测试页的二维码
+    const qrBoxSize = 210;
+    const qrBoxTop = radarCY + 200;
     ctx.fillStyle = '#ffffff';
-    ctx.font = `700 42px ${FONT}`;
-    ctx.fillText('测测我的', W / 2, pillTop + 62);
+    roundRect(ctx, W / 2 - qrBoxSize / 2, qrBoxTop, qrBoxSize, qrBoxSize, 24);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(224,75,46,0.25)';
+    ctx.lineWidth = 2;
+    roundRect(ctx, W / 2 - qrBoxSize / 2, qrBoxTop, qrBoxSize, qrBoxSize, 24);
+    ctx.stroke();
+    const qrOk = drawQr(ctx, QUIZ_URL, W / 2 - qrBoxSize / 2 + 20, qrBoxTop + 20, qrBoxSize - 40);
     ctx.fillStyle = MUTED;
     ctx.font = `500 30px ${FONT}`;
-    ctx.fillText('duorenchengxing.com/quiz.html', W / 2, pillTop + 150);
+    if (qrOk) {
+      ctx.fillText('扫码测测你的', W / 2, qrBoxTop + qrBoxSize + 52);
+    } else {
+      // 二维码库缺失时降级为文字链接
+      ctx.fillText('duorenchengxing.com/quiz.html', W / 2, qrBoxTop + qrBoxSize / 2);
+    }
 
     return canvas;
   }
@@ -1183,6 +1256,7 @@ if (typeof document !== 'undefined') {
   /* ─── 初始化 ─── */
   function init() {
     initAgeGate();
+    fetchQuizCount();
 
     $('startBtn').addEventListener('click', startQuiz);
     $('prevBtn').addEventListener('click', () => {
