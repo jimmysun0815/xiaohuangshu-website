@@ -681,19 +681,19 @@ if (typeof document !== 'undefined') {
 
     $('dimsRadar').innerHTML = radarSvg(dims);
 
-    // 每次出结果都回到条形图（PRD：移动端默认条形图）
-    radarShown = false;
-    bars.hidden = false;
-    $('dimsRadar').hidden = true;
-    $('dimsToggle').textContent = '雷达图';
+    // 默认展示雷达图，可切换条形图
+    radarShown = true;
+    bars.hidden = true;
+    $('dimsRadar').hidden = false;
+    $('dimsToggle').textContent = '条形图';
   }
 
   function radarSvg(dims) {
-    const W = 480;
-    const H = 350;
+    const W = 600;
+    const H = 430;
     const cx = W / 2;
-    const cy = 182;
-    const R = 105;
+    const cy = 220;
+    const R = 152;
     const pt = (i, r) => {
       const a = (Math.PI * 2 * i) / dims.length - Math.PI / 2;
       return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
@@ -720,7 +720,7 @@ if (typeof document !== 'undefined') {
       .join('');
     const labels = dims
       .map((d, i) => {
-        const [x, y] = pt(i, R + 24);
+        const [x, y] = pt(i, R + 30);
         const anchor = Math.abs(x - cx) < 12 ? 'middle' : x > cx ? 'start' : 'end';
         return `<text x="${x.toFixed(1)}" y="${(y + 4).toFixed(1)}" text-anchor="${anchor}" class="radar-label">${d.name} ${d.score}</text>`;
       })
@@ -763,8 +763,12 @@ if (typeof document !== 'undefined') {
     cardEl.innerHTML = '';
     const head = document.createElement('p');
     head.className = 'secondary-card-head';
-    head.textContent = `${persona.name} · ${persona.tagline}`;
+    head.textContent = persona.name;
     cardEl.appendChild(head);
+    const sub = document.createElement('p');
+    sub.className = 'secondary-card-sub';
+    sub.textContent = persona.tagline;
+    cardEl.appendChild(sub);
     persona[currentVersion].forEach((line) => {
       const p = document.createElement('p');
       p.textContent = line;
@@ -845,10 +849,63 @@ if (typeof document !== 'undefined') {
     return lines;
   }
 
+  /* 卡片上的雷达图（canvas 版，和页面 SVG 同一套数据） */
+  function drawCanvasRadar(ctx, dims, cx, cy, R, font, fg, accent) {
+    const N = dims.length;
+    const pt = (i, r) => {
+      const a = (Math.PI * 2 * i) / N - Math.PI / 2;
+      return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+    };
+    const tracePoly = (r) => {
+      ctx.beginPath();
+      for (let i = 0; i < N; i++) {
+        const [x, y] = pt(i, typeof r === 'function' ? r(i) : r);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+    };
+    // 网格环 + 轴
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(224, 75, 46, 0.18)';
+    [0.25, 0.5, 0.75, 1].forEach((f) => { tracePoly(R * f); ctx.stroke(); });
+    for (let i = 0; i < N; i++) {
+      const [x, y] = pt(i, R);
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+    }
+    // 得分区域
+    tracePoly((i) => (dims[i].score / 100) * R);
+    ctx.fillStyle = 'rgba(224, 75, 46, 0.22)';
+    ctx.fill();
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 4;
+    ctx.stroke();
+    // 顶点
+    ctx.fillStyle = accent;
+    for (let i = 0; i < N; i++) {
+      const [x, y] = pt(i, (dims[i].score / 100) * R);
+      ctx.beginPath();
+      ctx.arc(x, y, 7, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    // 标签
+    ctx.fillStyle = fg;
+    ctx.font = `500 30px ${font}`;
+    for (let i = 0; i < N; i++) {
+      const [x, y] = pt(i, R + 36);
+      ctx.textAlign = Math.abs(x - cx) < 14 ? 'center' : x > cx ? 'left' : 'right';
+      ctx.fillText(`${dims[i].name} ${dims[i].score}`, x, y + 10);
+    }
+    ctx.textAlign = 'center';
+  }
+
   function drawShareCard(primaryCode, ranked) {
     const persona = PERSONAS[primaryCode];
     const W = 1080;
-    const H = 1350;
+    const H = 1540;
     const canvas = document.createElement('canvas');
     canvas.width = W;
     canvas.height = H;
@@ -881,42 +938,42 @@ if (typeof document !== 'undefined') {
     // 顶部品牌
     ctx.fillStyle = MUTED;
     ctx.font = `600 34px ${FONT}`;
-    ctx.fillText('多人成行 · 开放性关系人格测试', W / 2, 110);
+    ctx.fillText('多人成行 · 开放性关系人格测试', W / 2, 100);
 
     // kicker
     ctx.fillStyle = FG;
     ctx.font = `500 44px ${FONT}`;
-    ctx.fillText('我的开放性关系人格是', W / 2, 280);
+    ctx.fillText('我的开放性关系人格是', W / 2, 235);
 
     // 结果名
     ctx.fillStyle = ACCENT;
     const nameSize = persona.name.length > 6 ? 96 : 120;
     ctx.font = `800 ${nameSize}px ${FONT}`;
-    ctx.fillText(persona.name, W / 2, 460);
+    ctx.fillText(persona.name, W / 2, 390);
 
     // 匹配度
     const pct = matchPercents(ranked);
     ctx.fillStyle = FG;
     ctx.font = `700 40px ${FONT}`;
-    ctx.fillText(`匹配度 ${pct.primary}%`, W / 2, 538);
+    ctx.fillText(`匹配度 ${pct.primary}%`, W / 2, 462);
 
     // tagline
     ctx.fillStyle = FG;
     ctx.font = `500 42px ${FONT}`;
-    ctx.fillText(persona.tagline, W / 2, 606);
+    ctx.fillText(persona.tagline, W / 2, 526);
 
-    // 描述卡片（露骨版前 3 句，最多渲染 5 行，超出加省略号）
+    // 描述卡片（露骨版开头，最多渲染 3 行，给下方雷达图留空间）
     const cardX = 90;
     const cardW = W - 180;
-    const cardY = 665;
+    const cardY = 578;
     ctx.font = `400 36px ${FONT}`;
     const rawLines = [];
     for (const line of PERSONAS[primaryCode][currentVersion].slice(0, 3)) {
       rawLines.push(...wrapLines(ctx, line, cardW - 100));
     }
-    const descLines = rawLines.slice(0, 5);
-    if (rawLines.length > 5) {
-      descLines[4] = `${descLines[4].slice(0, -2)}……`;
+    const descLines = rawLines.slice(0, 3);
+    if (rawLines.length > 3) {
+      descLines[2] = `${descLines[2].slice(0, -2)}……`;
     }
     const lineH = 58;
     const cardH = descLines.length * lineH + 90;
@@ -943,8 +1000,12 @@ if (typeof document !== 'undefined') {
       ctx.fillText(`同时也有【${PERSONAS[ranked[1][0]].name}】倾向 ${pct.secondary}%`, W / 2, y);
     }
 
+    // 维度雷达图
+    const radarCY = y + 250;
+    drawCanvasRadar(ctx, computeDimensions(resultAnswers), W / 2, radarCY, 150, FONT, FG, ACCENT);
+
     // 底部 CTA
-    const pillTop = y + 40;
+    const pillTop = radarCY + 215;
     ctx.fillStyle = ACCENT;
     roundRect(ctx, W / 2 - 160, pillTop, 320, 96, 48);
     ctx.fill();

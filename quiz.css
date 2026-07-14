@@ -413,9 +413,10 @@ body::before {
   font-weight: 500;
 }
 
-/* 匹配度 */
+/* 匹配度（独占一行，混合提示另起一行） */
 .match-row {
-  display: inline-flex;
+  display: flex;
+  justify-content: center;
   align-items: baseline;
   gap: 0.5rem;
   margin-bottom: 0.75rem;
@@ -552,9 +553,13 @@ body::before {
 }
 
 .radar-label {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   fill: var(--foreground);
+}
+
+.dims-radar {
+  margin: 0.5rem -0.5rem 0;
 }
 
 /* 版本切换 */
@@ -663,8 +668,16 @@ body::before {
 
 .secondary-card-head {
   font-weight: 700;
+  font-size: 1.05rem;
   color: var(--accent) !important;
-  margin-bottom: 0.75rem !important;
+  margin-bottom: 0.25rem !important;
+}
+
+.secondary-card-sub {
+  font-weight: 600;
+  color: var(--muted-foreground) !important;
+  font-size: 0.9rem;
+  margin-bottom: 0.875rem !important;
 }
 
 /* 倾向分布 */
