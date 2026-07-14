@@ -811,12 +811,14 @@ if (typeof document !== 'undefined') {
     }
   }
 
+  // 邀请对象一起测：把测试链接发给 TA。
+  // 手机走系统分享面板；桌面的 navigator.share 太不可靠（弹窗不明显
+  // 或静默失败），直接复制链接 + toast 提示。
   async function inviteShare() {
-    const url = QUIZ_URL;
-    const text = '测测你的开放性关系人格，看看我们默契度有多高 👀';
-    if (navigator.share) {
+    const text = '测测你的开放性关系人格，看看我们默契度有多高';
+    if (isMobile() && navigator.share) {
       try {
-        await navigator.share({ title: '开放性关系人格测试', text, url });
+        await navigator.share({ title: '开放性关系人格测试', text, url: QUIZ_URL });
         return;
       } catch (e) {
         if (e && e.name === 'AbortError') return;
