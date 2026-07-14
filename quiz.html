@@ -15,7 +15,7 @@
     />
     <meta property="og:type" content="website" />
     <link rel="stylesheet" href="./styles.css" />
-    <link rel="stylesheet" href="./quiz.css?v=9" />
+    <link rel="stylesheet" href="./quiz.css?v=10" />
   </head>
   <body>
     <!-- ─── 18+ 验证遮罩 ─── -->
@@ -110,12 +110,13 @@
         <div class="secondary-card card-surface" id="secondaryCard" hidden></div>
 
         <div class="dims-card card-surface">
-          <div class="dims-head">
-            <h3>你的维度画像</h3>
-            <button class="dims-toggle" id="dimsToggle" type="button">雷达图</button>
+          <h3 class="dims-title">你的维度画像</h3>
+          <div class="dims-tabs" role="tablist" aria-label="维度画像视图">
+            <button class="dims-tab active" id="tabRadar" type="button" role="tab">雷达图</button>
+            <button class="dims-tab" id="tabBars" type="button" role="tab">条形图</button>
           </div>
-          <div class="dims-bars" id="dimsBars"></div>
-          <div class="dims-radar" id="dimsRadar" hidden></div>
+          <div class="dims-radar" id="dimsRadar"></div>
+          <div class="dims-bars" id="dimsBars" hidden></div>
         </div>
 
         <div class="share-card-wrap card-surface">
@@ -191,6 +192,6 @@
 
     <div class="toast" id="toast" hidden></div>
 
-    <script src="./quiz.js?v=9"></script>
+    <script src="./quiz.js?v=10"></script>
   </body>
 </html>

@@ -681,11 +681,16 @@ if (typeof document !== 'undefined') {
 
     $('dimsRadar').innerHTML = radarSvg(dims);
 
-    // 默认展示雷达图，可切换条形图
-    radarShown = true;
-    bars.hidden = true;
-    $('dimsRadar').hidden = false;
-    $('dimsToggle').textContent = '条形图';
+    // 默认展示雷达图 tab
+    setDimsTab(true);
+  }
+
+  function setDimsTab(radar) {
+    radarShown = radar;
+    $('dimsRadar').hidden = !radar;
+    $('dimsBars').hidden = radar;
+    $('tabRadar').classList.toggle('active', radar);
+    $('tabBars').classList.toggle('active', !radar);
   }
 
   function radarSvg(dims) {
@@ -1136,12 +1141,8 @@ if (typeof document !== 'undefined') {
     });
     $('shareXBtn').addEventListener('click', shareToX);
     $('shareCardBtn').addEventListener('click', shareCard);
-    $('dimsToggle').addEventListener('click', () => {
-      radarShown = !radarShown;
-      $('dimsBars').hidden = radarShown;
-      $('dimsRadar').hidden = !radarShown;
-      $('dimsToggle').textContent = radarShown ? '条形图' : '雷达图';
-    });
+    $('tabRadar').addEventListener('click', () => setDimsTab(true));
+    $('tabBars').addEventListener('click', () => setDimsTab(false));
     $('copyLinkBtn').addEventListener('click', copyResultLink);
     $('inviteBtn').addEventListener('click', inviteShare);
     $('retakeBtn').addEventListener('click', startQuiz);

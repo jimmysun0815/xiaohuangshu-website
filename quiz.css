@@ -456,30 +456,41 @@ body::before {
   .dims-card { padding: 2rem; }
 }
 
-.dims-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1.25rem;
-}
-
-.dims-head h3 {
+.dims-title {
+  text-align: center;
   font-size: 1.05rem;
+  margin-bottom: 1rem;
 }
 
-.dims-toggle {
+/* 雷达图 / 条形图 分段 tab */
+.dims-tabs {
+  display: flex;
   background: var(--muted);
-  border: none;
   border-radius: 999px;
-  padding: 0.375rem 1rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--muted-foreground);
+  padding: 4px;
+  max-width: 260px;
+  margin: 0 auto 1.25rem;
 }
 
-.dims-toggle:hover {
-  color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 10%, var(--muted));
+.dims-tab {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--muted-foreground);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+}
+
+.dims-tab:hover:not(.active) {
+  color: var(--foreground);
+}
+
+.dims-tab.active {
+  background: var(--accent);
+  color: var(--accent-foreground);
+  box-shadow: var(--shadow-sm);
 }
 
 .dims-bars {
