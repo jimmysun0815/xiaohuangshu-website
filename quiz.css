@@ -28,6 +28,18 @@ body {
   --border: rgba(255, 255, 255, 0.1);
   background: #0d0710;
   color: var(--foreground);
+  /* sticky footer：内容不满一屏时 main 撑满剩余高度，footer 贴底 */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.quiz-main {
+  flex: 1 0 auto;
+}
+
+.site-footer {
+  flex-shrink: 0;
 }
 
 /* 氛围光晕铺满整站（入口页最明显，答题/结果页做低调底色） */
