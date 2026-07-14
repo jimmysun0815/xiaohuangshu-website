@@ -174,6 +174,12 @@ p { margin: 0; }
   box-shadow: var(--shadow);
 }
 
+.header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 /* ─── Buttons ─── */
 .btn {
   display: inline-flex;
