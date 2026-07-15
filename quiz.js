@@ -427,17 +427,110 @@ const PERSONAS = {
    图上所有文字零敏感词：安全名称 + 安全金句，仅用于生成委婉版卡片，
    App 内结果页仍用原始名称与文案。 ─── */
 const SAFE_PERSONAS = {
-  PL: { name: '专一型', quote: '你把完整看得比什么都重要，爱得安静，也爱得用力。' },
-  MO: { name: '弹性型', quote: '你在安全感和可能性之间，慢慢找到属于自己的平衡。' },
-  PS: { name: '自由连接型', quote: '你相信真正的信任，是允许彼此在连接中依然拥有空间。' },
-  VG: { name: '旁观感受型', quote: '有时候最深的陪伴，是安静地看着，把细微变化收进心里。' },
-  CK: { name: '复杂情绪型', quote: '你对关系有着更复杂的感受，并学着把情绪转化为理解。' },
-  HW: { name: '主动分享型', quote: '你愿意为在乎的人打开更大的空间，并在其中找到安心。' },
-  BS: { name: '被信任探索型', quote: '你渴望被深深信任，并在被允许探索中感受连接。' },
-  SW: { name: '对等流动型', quote: '你喜欢对等的流动，给彼此空间，也守住共同的连接。' },
-  KT: { name: '紧密共处型', quote: '你想要的不是两个人的世界，而是一群人一起把日子过踏实。' },
-  PR: { name: '独立边界型', quote: '你尊重独立，也需要独立。真正的亲密是不失去自我的靠近。' },
-  RA: { name: '流动自由型', quote: '你不喜欢被定义，只在乎当下真实的连接与流动。' },
+  PL: {
+    name: '专一型',
+    quote: [
+      '你把「完整」看得比什么都重要。',
+      '一旦认定了某个人，你就会把全部的认真都放进去。',
+      '别人觉得你固执，其实你只是清楚地知道：',
+      '有些东西一旦被分享，对你来说就不再是原来的样子了。',
+      '你爱得安静，也爱得用力。',
+    ],
+  },
+  MO: {
+    name: '弹性型',
+    quote: [
+      '你并不是完全封闭自己，但骨子里还是更相信稳定的连接。',
+      '偶尔的例外你可以理解，前提是边界清晰、双方都舒服。',
+      '你会好奇，也会犹豫。',
+      '你一直在「安全感」和「可能性」之间，慢慢找到属于自己的平衡。',
+    ],
+  },
+  PS: {
+    name: '自由连接型',
+    quote: [
+      '你能把情感上的深度连接，和身体上的自由分得很清楚。',
+      '对你来说，爱可以很专一，但并不意味着生活里不能有其他的可能性。',
+      '你相信真正的信任，是允许彼此在保持连接的同时，也拥有自己的空间。',
+      '自由不是冷漠，而是另一种形式的松弛与尊重。',
+    ],
+  },
+  VG: {
+    name: '旁观感受型',
+    quote: [
+      '你不一定需要亲自下场，但你很会感受氛围。',
+      '对方因为别人而发光、而有情绪波动的样子，反而会让你心里涌起一种复杂的柔软。',
+      '有时候你更愿意安静地看着，把那些细微的变化都收进心里。',
+      '对你来说，参与不一定是靠近，旁观有时也是一种很深的陪伴。',
+    ],
+  },
+  CK: {
+    name: '复杂情绪型',
+    quote: [
+      '你对「被分享」这件事，有着和其他人不太一样的感受。',
+      '当对方被别人需要、被别人认真对待时，你心里反而会升起一种隐秘的触动。',
+      '你不是没有在乎，你只是把在乎转化成了另一种情绪。',
+      '你在学习如何把复杂的情绪，变成关系里的另一种理解。',
+    ],
+  },
+  HW: {
+    name: '主动分享型',
+    quote: [
+      '你爱一个人的方式，有时是愿意为对方打开更大的空间。',
+      '你享受看着对方因为新的体验而发光的样子，那让你既安心，又有一点隐秘的满足。',
+      '别人用「只属于我」来确认关系，你用「我愿意让你被更多人看见」来确认信任。',
+      '你把最在意的人送进更广阔的世界里，却在这个过程中收获了更深的连接感。',
+    ],
+  },
+  BS: {
+    name: '被信任探索型',
+    quote: [
+      '你渴望被伴侣信任到可以放心地被分享。',
+      '你不是被动等待，而是内心里有点期待被推出去看看更广阔的世界。',
+      '当对方愿意为你打开那扇门时，你感受到的不是被抛弃，而是被深深信任。',
+      '对你来说，这不是失去，而是一种被允许探索的自由，也是一种被深爱的证明。',
+    ],
+  },
+  SW: {
+    name: '对等流动型',
+    quote: [
+      '你喜欢对等的流动——你给对方空间，对方也给你空间。',
+      '对你来说，这从来不是单方面的付出，而是双方共同的选择。',
+      '边界清晰、互相尊重、事后还能好好聊天，是你最在意的。',
+      '你享受那种「我们都在外面被世界温柔以待，然后还能回到彼此身边」的感觉。',
+    ],
+  },
+  KT: {
+    name: '紧密共处型',
+    quote: [
+      '你理想中的关系，不是两个人关起门来过日子，而是一群人一起把生活过踏实。',
+      '一起吃饭、一起聊天、一起处理情绪，甚至一起面对生活的琐碎。',
+      '你要的不是单纯的新鲜感，而是真正的连接。',
+      '别人觉得多边很复杂，你觉得那像一个被选择的家。',
+      '你相信爱可以扩展，而不是被稀释。',
+    ],
+  },
+  PR: {
+    name: '独立边界型',
+    quote: [
+      '你可以接受关系里有其他的可能性，但前提是大家都有自己的空间。',
+      '你不喜欢过度纠缠，也不喜欢被迫融入别人的节奏。',
+      '各自有各自的生活，各自有各自的亲密，互不越界才是舒服的状态。',
+      '你尊重独立，也需要独立。',
+      '真正的亲密，是在不失去自我的前提下靠近。',
+    ],
+  },
+  RA: {
+    name: '流动自由型',
+    quote: [
+      '你讨厌被定义，也讨厌定义别人。',
+      '恋人、朋友、暧昧、重要的人……这些词对你来说都太窄了。',
+      '你只在乎当下真实的连接，而不是关系必须叫什么名字。',
+      '别人靠标签获得安全感，你靠流动获得安全感。',
+      '你活得比大多数人更自由，也比大多数人更难被简单概括。',
+      '一切随缘，却又认真对待每一次靠近。',
+    ],
+  },
 };
 
 /* ─── 匹配度（v5 §5）───
@@ -1168,14 +1261,20 @@ if (typeof document !== 'undefined') {
     const MUTED = '#9a908a';
     const FONT = '-apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
 
-    // 金句折行后动态定高
+    // 金句（多行段落）折行后动态定高
     const measure = document.createElement('canvas').getContext('2d');
-    measure.font = `500 46px ${FONT}`;
-    const quoteLines = wrapLines(measure, safe.quote, W - 260);
-    const quoteTop = 610;
-    const quoteLineH = 76;
-    const secondaryY = quoteTop + quoteLines.length * quoteLineH + 72;
-    const qrTop = secondaryY + 64;
+    measure.font = `500 38px ${FONT}`;
+    const quoteLines = [];
+    for (const line of safe.quote) {
+      quoteLines.push(...wrapLines(measure, line, W - 300));
+    }
+    const quoteCardX = 100;
+    const quoteCardW = W - 200;
+    const quoteCardY = 548;
+    const quoteLineH = 66;
+    const quoteCardH = quoteLines.length * quoteLineH + 88;
+    const secondaryY = quoteCardY + quoteCardH + 62;
+    const qrTop = secondaryY + 56;
     const qrBoxSize = 190;
     const H = qrTop + qrBoxSize + 180;
 
@@ -1225,14 +1324,21 @@ if (typeof document !== 'undefined') {
 
     // 分隔小装饰
     ctx.fillStyle = ACCENT;
-    roundRect(ctx, W / 2 - 36, 512, 72, 8, 4);
+    roundRect(ctx, W / 2 - 36, 498, 72, 8, 4);
     ctx.fill();
 
-    // 金句（最突出的部分）
+    // 金句段落（最突出的部分，柔和白卡承载）
+    ctx.fillStyle = 'rgba(255,255,255,0.72)';
+    roundRect(ctx, quoteCardX, quoteCardY, quoteCardW, quoteCardH, 30);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(166,127,111,0.22)';
+    ctx.lineWidth = 2;
+    roundRect(ctx, quoteCardX, quoteCardY, quoteCardW, quoteCardH, 30);
+    ctx.stroke();
     ctx.fillStyle = FG;
-    ctx.font = `500 46px ${FONT}`;
+    ctx.font = `500 38px ${FONT}`;
     quoteLines.forEach((line, i) => {
-      ctx.fillText(line, W / 2, quoteTop + i * quoteLineH);
+      ctx.fillText(line, W / 2, quoteCardY + 66 + i * quoteLineH);
     });
 
     // 次要倾向（安全名称）
