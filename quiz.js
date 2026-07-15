@@ -944,7 +944,8 @@ if (typeof document !== 'undefined') {
   }
 
   /* 卡片上的雷达图（canvas 版，和页面 SVG 同一套数据） */
-  function drawCanvasRadar(ctx, dims, cx, cy, R, font, fg, accent) {
+  function drawCanvasRadar(ctx, dims, cx, cy, R, font, fg, accent, labelSize) {
+    const LS = labelSize || 30;
     const N = dims.length;
     const pt = (i, r) => {
       const a = (Math.PI * 2 * i) / N - Math.PI / 2;
@@ -987,9 +988,9 @@ if (typeof document !== 'undefined') {
     }
     // 标签
     ctx.fillStyle = fg;
-    ctx.font = `500 30px ${font}`;
+    ctx.font = `500 ${LS}px ${font}`;
     for (let i = 0; i < N; i++) {
-      const [x, y] = pt(i, R + 36);
+      const [x, y] = pt(i, R + LS + 6);
       ctx.textAlign = Math.abs(x - cx) < 14 ? 'center' : x > cx ? 'left' : 'right';
       ctx.fillText(`${dims[i].name} ${dims[i].score}`, x, y + 10);
     }
@@ -1022,15 +1023,33 @@ if (typeof document !== 'undefined') {
   function drawShareCard(primaryCode, ranked) {
     const persona = PERSONAS[primaryCode];
     const W = 1080;
-    const H = 1620;
-    const canvas = document.createElement('canvas');
-    canvas.width = W;
-    canvas.height = H;
-    const ctx = canvas.getContext('2d');
     const ACCENT = '#e04b2e';
     const FG = '#2b2622';
     const MUTED = '#8a8378';
     const FONT = '-apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
+
+    // 先量文字：描述全文完整渲染，画布高度按行数动态算
+    const cardX = 90;
+    const cardW = W - 180;
+    const lineH = 56;
+    const measure = document.createElement('canvas').getContext('2d');
+    measure.font = `400 36px ${FONT}`;
+    const descLines = [];
+    for (const line of persona[currentVersion]) {
+      descLines.push(...wrapLines(measure, line, cardW - 100));
+    }
+    const cardY = 500;
+    const cardH = descLines.length * lineH + 84;
+    const hasSecondary = ranked[1][1] > 0;
+    const secondaryY = cardY + cardH + 58;
+    const rowTop = (hasSecondary ? secondaryY : cardY + cardH) + 48;
+    const radarCY = rowTop + 180;
+    const H = radarCY + 216;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
 
     // 背景
     const bg = ctx.createLinearGradient(0, 0, 0, H);
@@ -1052,54 +1071,30 @@ if (typeof document !== 'undefined') {
 
     ctx.textAlign = 'center';
 
-    // 顶部品牌
+    // 顶部（紧凑排布）
     ctx.fillStyle = MUTED;
-    ctx.font = `600 34px ${FONT}`;
-    ctx.fillText('多人成行 · 开放性关系人格测试', W / 2, 100);
+    ctx.font = `600 32px ${FONT}`;
+    ctx.fillText('多人成行 · 开放性关系人格测试', W / 2, 88);
 
-    // kicker
-    ctx.fillStyle = FG;
-    ctx.font = `500 44px ${FONT}`;
-    ctx.fillText('我的开放性关系人格是', W / 2, 235);
-
-    // 结果名
-    ctx.fillStyle = ACCENT;
-    const nameSize = persona.name.length > 6 ? 96 : 120;
-    ctx.font = `800 ${nameSize}px ${FONT}`;
-    ctx.fillText(persona.name, W / 2, 390);
-
-    // 匹配度
-    const pct = matchPercents(ranked);
-    ctx.fillStyle = FG;
-    ctx.font = `700 40px ${FONT}`;
-    ctx.fillText(`匹配度 ${pct.primary}%`, W / 2, 462);
-
-    // tagline
     ctx.fillStyle = FG;
     ctx.font = `500 42px ${FONT}`;
-    ctx.fillText(persona.tagline, W / 2, 526);
+    ctx.fillText('我的开放性关系人格是', W / 2, 196);
 
-    // 描述卡片（露骨版开头，最多渲染 3 行，给下方雷达图留空间）
-    const cardX = 90;
-    const cardW = W - 180;
-    const cardY = 578;
-    ctx.font = `400 36px ${FONT}`;
-    const rawLines = [];
-    for (const line of PERSONAS[primaryCode][currentVersion].slice(0, 3)) {
-      rawLines.push(...wrapLines(ctx, line, cardW - 100));
-    }
-    const descLines = rawLines.slice(0, 3);
-    if (rawLines.length > 3) {
-      // 末行太短时并入上一行做省略，避免出现孤零零的"……"
-      if (descLines[2].length <= 4) {
-        descLines.pop();
-        descLines[1] = `${descLines[1].slice(0, -1)}……`;
-      } else {
-        descLines[2] = `${descLines[2].slice(0, -2)}……`;
-      }
-    }
-    const lineH = 58;
-    const cardH = descLines.length * lineH + 90;
+    ctx.fillStyle = ACCENT;
+    const nameSize = persona.name.length > 6 ? 88 : 104;
+    ctx.font = `800 ${nameSize}px ${FONT}`;
+    ctx.fillText(persona.name, W / 2, 330);
+
+    const pct = matchPercents(ranked);
+    ctx.fillStyle = FG;
+    ctx.font = `700 38px ${FONT}`;
+    ctx.fillText(`匹配度 ${pct.primary}%`, W / 2, 396);
+
+    ctx.fillStyle = FG;
+    ctx.font = `500 38px ${FONT}`;
+    ctx.fillText(persona.tagline, W / 2, 456);
+
+    // 描述卡片（全文，不截断）
     ctx.fillStyle = 'rgba(255,255,255,0.85)';
     roundRect(ctx, cardX, cardY, cardW, cardH, 32);
     ctx.fill();
@@ -1108,43 +1103,40 @@ if (typeof document !== 'undefined') {
     roundRect(ctx, cardX, cardY, cardW, cardH, 32);
     ctx.stroke();
     ctx.fillStyle = FG;
+    ctx.font = `400 36px ${FONT}`;
     descLines.forEach((line, i) => {
-      ctx.fillText(line, W / 2, cardY + 70 + i * lineH);
+      ctx.fillText(line, W / 2, cardY + 64 + i * lineH);
     });
 
-    // 卡片以下的元素从卡片底部起依次向下排，避免固定坐标互相压住
-    let y = cardY + cardH;
-
     // 次要倾向
-    if (ranked[1][1] > 0) {
-      y += 60;
+    if (hasSecondary) {
       ctx.fillStyle = MUTED;
       ctx.font = `500 34px ${FONT}`;
-      ctx.fillText(`同时也有【${PERSONAS[ranked[1][0]].name}】倾向 ${pct.secondary}%`, W / 2, y);
+      ctx.fillText(`同时也有【${PERSONAS[ranked[1][0]].name}】倾向 ${pct.secondary}%`, W / 2, secondaryY);
     }
 
-    // 维度雷达图
-    const radarCY = y + 240;
-    drawCanvasRadar(ctx, computeDimensions(resultAnswers), W / 2, radarCY, 150, FONT, FG, ACCENT);
+    // 底部一行：左雷达图（大）+ 右二维码（小）
+    drawCanvasRadar(ctx, computeDimensions(resultAnswers), 370, radarCY, 140, FONT, FG, ACCENT, 26);
 
-    // 底部：扫码直达测试页的二维码
-    const qrBoxSize = 210;
-    const qrBoxTop = radarCY + 200;
+    const qrBoxSize = 200;
+    const qrX = W - 90 - qrBoxSize;
+    const qrY = radarCY - qrBoxSize / 2 - 14;
     ctx.fillStyle = '#ffffff';
-    roundRect(ctx, W / 2 - qrBoxSize / 2, qrBoxTop, qrBoxSize, qrBoxSize, 24);
+    roundRect(ctx, qrX, qrY, qrBoxSize, qrBoxSize, 24);
     ctx.fill();
     ctx.strokeStyle = 'rgba(224,75,46,0.25)';
     ctx.lineWidth = 2;
-    roundRect(ctx, W / 2 - qrBoxSize / 2, qrBoxTop, qrBoxSize, qrBoxSize, 24);
+    roundRect(ctx, qrX, qrY, qrBoxSize, qrBoxSize, 24);
     ctx.stroke();
-    const qrOk = drawQr(ctx, QUIZ_URL, W / 2 - qrBoxSize / 2 + 20, qrBoxTop + 20, qrBoxSize - 40);
+    const qrOk = drawQr(ctx, QUIZ_URL, qrX + 18, qrY + 18, qrBoxSize - 36);
     ctx.fillStyle = MUTED;
-    ctx.font = `500 30px ${FONT}`;
+    ctx.font = `500 26px ${FONT}`;
     if (qrOk) {
-      ctx.fillText('扫码测测你的', W / 2, qrBoxTop + qrBoxSize + 52);
+      ctx.fillText('扫码测测你的', qrX + qrBoxSize / 2, qrY + qrBoxSize + 44);
     } else {
       // 二维码库缺失时降级为文字链接
-      ctx.fillText('duorenchengxing.com/quiz.html', W / 2, qrBoxTop + qrBoxSize / 2);
+      ctx.font = `500 24px ${FONT}`;
+      ctx.fillText('duorenchengxing.com/quiz.html', qrX + qrBoxSize / 2, qrY + qrBoxSize / 2);
     }
 
     return canvas;
