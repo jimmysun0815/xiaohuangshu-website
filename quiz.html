@@ -15,7 +15,7 @@
     />
     <meta property="og:type" content="website" />
     <link rel="stylesheet" href="./styles.css" />
-    <link rel="stylesheet" href="./quiz.css?v=17" />
+    <link rel="stylesheet" href="./quiz.css?v=18" />
   </head>
   <body>
     <!-- ─── 18+ 验证遮罩 ─── -->
@@ -145,6 +145,20 @@
               复制测试链接
             </button>
           </div>
+
+          <div class="share-safe">
+            <p class="share-safe-note">
+              想发<strong>小红书</strong>或<strong>微信朋友圈</strong>？用下面这个按钮——
+              生成一版措辞委婉的卡片（温和说法 + 柔和配色），不容易被平台限流。
+            </p>
+            <button class="btn btn-lg share-safe-btn" id="shareSafeBtn" type="button">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 3c.9 2.7 3.3 5.1 6 6-2.7.9-5.1 3.3-6 6-.9-2.7-3.3-5.1-6-6 2.7-.9 5.1-3.3 6-6z"></path>
+                <path d="M19 15c.4 1.2 1.4 2.2 2.6 2.6-1.2.4-2.2 1.4-2.6 2.6-.4-1.2-1.4-2.2-2.6-2.6 1.2-.4 2.2-1.4 2.6-2.6z"></path>
+              </svg>
+              生成小红书 / 微信版卡片
+            </button>
+          </div>
         </div>
 
         <div class="cta-banner quiz-cta" id="ctaBanner">
@@ -193,6 +207,6 @@
     <div class="toast" id="toast" hidden></div>
 
     <script src="./vendor/qrcode.js"></script>
-    <script src="./quiz.js?v=17"></script>
+    <script src="./quiz.js?v=18"></script>
   </body>
 </html>

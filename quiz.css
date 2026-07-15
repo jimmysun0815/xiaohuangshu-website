@@ -786,6 +786,35 @@ body::before {
   gap: 0.75rem;
 }
 
+/* 小红书 / 微信安全版分享 */
+.share-safe {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px dashed var(--border);
+}
+
+.share-safe-note {
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+  line-height: 1.7;
+  max-width: 420px;
+  margin: 0 auto 1rem;
+}
+
+.share-safe-note strong {
+  color: var(--foreground);
+}
+
+.share-safe-btn {
+  background: linear-gradient(135deg, #c9a294 0%, #a67f6f 100%);
+  color: #fff;
+  border: none;
+}
+
+.share-safe-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
 /* CTA */
 .quiz-cta {
   margin-bottom: 1.5rem;

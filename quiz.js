@@ -423,6 +423,23 @@ const PERSONAS = {
   },
 };
 
+/* ─── 小红书 / 微信安全分享卡（分享图 PRD v1.0）───
+   图上所有文字零敏感词：安全名称 + 安全金句，仅用于生成委婉版卡片，
+   App 内结果页仍用原始名称与文案。 ─── */
+const SAFE_PERSONAS = {
+  PL: { name: '专一型', quote: '你把完整看得比什么都重要，爱得安静，也爱得用力。' },
+  MO: { name: '弹性型', quote: '你在安全感和可能性之间，慢慢找到属于自己的平衡。' },
+  PS: { name: '自由连接型', quote: '你相信真正的信任，是允许彼此在连接中依然拥有空间。' },
+  VG: { name: '旁观感受型', quote: '有时候最深的陪伴，是安静地看着，把细微变化收进心里。' },
+  CK: { name: '复杂情绪型', quote: '你对关系有着更复杂的感受，并学着把情绪转化为理解。' },
+  HW: { name: '主动分享型', quote: '你愿意为在乎的人打开更大的空间，并在其中找到安心。' },
+  BS: { name: '被信任探索型', quote: '你渴望被深深信任，并在被允许探索中感受连接。' },
+  SW: { name: '对等流动型', quote: '你喜欢对等的流动，给彼此空间，也守住共同的连接。' },
+  KT: { name: '紧密共处型', quote: '你想要的不是两个人的世界，而是一群人一起把日子过踏实。' },
+  PR: { name: '独立边界型', quote: '你尊重独立，也需要独立。真正的亲密是不失去自我的靠近。' },
+  RA: { name: '流动自由型', quote: '你不喜欢被定义，只在乎当下真实的连接与流动。' },
+};
+
 /* ─── 匹配度（v5 §5）───
    主结果：理论最高分归一化后钳到 72~97
    （文档原始公式 70 + 主分/最高分×27 因主分==最高分而恒等于 97，
@@ -603,7 +620,7 @@ function decodeAnswers(str) {
 /* ─── Node 环境导出（供计分逻辑测试用；浏览器里直接跳过） ─── */
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
-    QUESTIONS, PRIORITY, PERSONAS, DIMENSIONS, THEORETICAL_MAX,
+    QUESTIONS, PRIORITY, PERSONAS, SAFE_PERSONAS, DIMENSIONS, THEORETICAL_MAX,
     computeScores, rankScores, encodeAnswers, decodeAnswers,
     matchPercents, computeDimensions,
   };
@@ -1142,6 +1159,133 @@ if (typeof document !== 'undefined') {
     return canvas;
   }
 
+  /* ─── 小红书 / 微信版安全卡片（莫兰迪配色 + 零敏感词文案） ─── */
+  function drawSafeCard(primaryCode, ranked) {
+    const safe = SAFE_PERSONAS[primaryCode];
+    const W = 1080;
+    const ACCENT = '#a67f6f'; // 灰调陶土色
+    const FG = '#4a4340';
+    const MUTED = '#9a908a';
+    const FONT = '-apple-system, "PingFang SC", "Microsoft YaHei", sans-serif';
+
+    // 金句折行后动态定高
+    const measure = document.createElement('canvas').getContext('2d');
+    measure.font = `500 46px ${FONT}`;
+    const quoteLines = wrapLines(measure, safe.quote, W - 260);
+    const quoteTop = 610;
+    const quoteLineH = 76;
+    const secondaryY = quoteTop + quoteLines.length * quoteLineH + 72;
+    const qrTop = secondaryY + 64;
+    const qrBoxSize = 190;
+    const H = qrTop + qrBoxSize + 180;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
+
+    // 奶油色背景 + 低饱和装饰
+    const bg = ctx.createLinearGradient(0, 0, 0, H);
+    bg.addColorStop(0, '#faf7f2');
+    bg.addColorStop(1, '#f0e8e0');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+    ctx.globalAlpha = 0.06;
+    ctx.fillStyle = ACCENT;
+    ctx.beginPath();
+    ctx.arc(W - 110, 170, 230, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(80, H - 140, 190, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+
+    ctx.textAlign = 'center';
+
+    // 顶部品牌（不出现"开放性"字样）
+    ctx.fillStyle = MUTED;
+    ctx.font = `600 32px ${FONT}`;
+    ctx.fillText('多人成行 · 关系人格测试', W / 2, 96);
+
+    ctx.fillStyle = FG;
+    ctx.font = `500 42px ${FONT}`;
+    ctx.fillText('你的关系人格是', W / 2, 232);
+
+    // 安全名称
+    ctx.fillStyle = ACCENT;
+    const nameSize = safe.name.length > 5 ? 92 : 104;
+    ctx.font = `800 ${nameSize}px ${FONT}`;
+    ctx.fillText(safe.name, W / 2, 386);
+
+    // 匹配度
+    const pct = matchPercents(ranked);
+    ctx.fillStyle = FG;
+    ctx.font = `700 38px ${FONT}`;
+    ctx.fillText(`匹配度 ${pct.primary}%`, W / 2, 456);
+
+    // 分隔小装饰
+    ctx.fillStyle = ACCENT;
+    roundRect(ctx, W / 2 - 36, 512, 72, 8, 4);
+    ctx.fill();
+
+    // 金句（最突出的部分）
+    ctx.fillStyle = FG;
+    ctx.font = `500 46px ${FONT}`;
+    quoteLines.forEach((line, i) => {
+      ctx.fillText(line, W / 2, quoteTop + i * quoteLineH);
+    });
+
+    // 次要倾向（安全名称）
+    if (ranked[1][1] > 0) {
+      ctx.fillStyle = MUTED;
+      ctx.font = `500 34px ${FONT}`;
+      ctx.fillText(`次要倾向：${SAFE_PERSONAS[ranked[1][0]].name} ${pct.secondary}%`, W / 2, secondaryY);
+    }
+
+    // 底部：二维码 + 引导
+    const qrX = W / 2 - qrBoxSize / 2;
+    ctx.fillStyle = '#ffffff';
+    roundRect(ctx, qrX, qrTop, qrBoxSize, qrBoxSize, 22);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(166,127,111,0.3)';
+    ctx.lineWidth = 2;
+    roundRect(ctx, qrX, qrTop, qrBoxSize, qrBoxSize, 22);
+    ctx.stroke();
+    const qrOk = drawQr(ctx, QUIZ_URL, qrX + 17, qrTop + 17, qrBoxSize - 34);
+    ctx.fillStyle = MUTED;
+    ctx.font = `500 30px ${FONT}`;
+    if (qrOk) {
+      ctx.fillText('扫码测测你的关系人格', W / 2, qrTop + qrBoxSize + 56);
+    } else {
+      ctx.fillText('duorenchengxing.com', W / 2, qrTop + qrBoxSize / 2);
+    }
+    ctx.font = `500 26px ${FONT}`;
+    ctx.fillText('「多人成行」· 线下破冰游戏', W / 2, qrTop + qrBoxSize + 104);
+
+    return canvas;
+  }
+
+  async function shareSafeCard() {
+    const ranked = rankScores(computeScores(resultAnswers));
+    const canvas = drawSafeCard(ranked[0][0], ranked);
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+    if (!blob) {
+      showToast('生成卡片失败，请重试');
+      return;
+    }
+    const file = new File([blob], 'guanxi-persona.png', { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: '关系人格测试' });
+        return;
+      } catch (e) {
+        if (e && e.name === 'AbortError') return;
+      }
+    }
+    downloadBlob(blob, 'guanxi-persona.png');
+    showToast('委婉版卡片已保存，可以直接发小红书 / 朋友圈', 5000);
+  }
+
   async function makeCardBlob() {
     const ranked = rankScores(computeScores(resultAnswers));
     const canvas = drawShareCard(ranked[0][0], ranked);
@@ -1149,10 +1293,10 @@ if (typeof document !== 'undefined') {
     return { blob, ranked };
   }
 
-  function downloadBlob(blob) {
+  function downloadBlob(blob, filename) {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'kaifang-quiz-result.png';
+    a.download = filename || 'kaifang-quiz-result.png';
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -1260,6 +1404,7 @@ if (typeof document !== 'undefined') {
     });
     $('shareXBtn').addEventListener('click', shareToX);
     $('shareCardBtn').addEventListener('click', shareCard);
+    $('shareSafeBtn').addEventListener('click', shareSafeCard);
     $('tabRadar').addEventListener('click', () => setDimsTab(true));
     $('tabBars').addEventListener('click', () => setDimsTab(false));
     $('copyLinkBtn').addEventListener('click', copyResultLink);
