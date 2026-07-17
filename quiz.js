@@ -1587,6 +1587,7 @@ if (typeof document !== 'undefined') {
     fetchQuizCount();
     initPersonaWall();
 
+    $('headerHome').addEventListener('click', () => showView('intro'));
     $('startBtn').addEventListener('click', startQuiz);
     $('prevBtn').addEventListener('click', () => {
       if (!advancing && currentQ > 0) {

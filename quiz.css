@@ -111,6 +111,15 @@ body::before {
   font-size: 0.875rem;
   color: var(--muted-foreground);
   font-weight: 500;
+  background: none;
+  border: none;
+  padding: 0.25rem 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.quiz-header-tag:hover {
+  color: var(--foreground);
 }
 
 .quiz-main {
