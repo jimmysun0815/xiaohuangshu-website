@@ -22,7 +22,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32.png" />
     <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png" />
     <link rel="stylesheet" href="./styles.css" />
-    <link rel="stylesheet" href="./quiz.css?v=20" />
+    <link rel="stylesheet" href="./quiz.css?v=21" />
   </head>
   <body>
     <!-- ─── 18+ 验证遮罩 ─── -->
@@ -93,7 +93,7 @@
           </figure>
           <div class="persona-cell persona-cell-title">
             <span class="persona-title-main">开放性关系<br />人格测试</span>
-            <span class="persona-title-sub">11 种人格 · 你是哪一种</span>
+            <span class="persona-title-sub">11 种人格<br />你是哪一种</span>
           </div>
           <figure class="persona-cell">
             <img src="./assets/avatar/CK.jpg" alt="绿帽者" loading="lazy" />
@@ -154,6 +154,9 @@
 
         <div class="result-hero">
           <p class="result-kicker">你的开放性关系人格是</p>
+          <div class="result-avatar-wrap">
+            <img class="result-avatar" id="resultAvatar" alt="" />
+          </div>
           <h1 class="persona-name" id="personaName"></h1>
           <div class="match-row">
             <span class="match-num" id="matchPercent"></span>
@@ -266,6 +269,6 @@
     <div class="toast" id="toast" hidden></div>
 
     <script src="./vendor/qrcode.js"></script>
-    <script src="./quiz.js?v=20"></script>
+    <script src="./quiz.js?v=21"></script>
   </body>
 </html>

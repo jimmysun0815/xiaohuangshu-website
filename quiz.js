@@ -819,6 +819,8 @@ if (typeof document !== 'undefined') {
     const pct = matchPercents(ranked);
 
     $('sharedBanner').hidden = !isShared;
+    $('resultAvatar').src = `./assets/avatar/${primary}.jpg`;
+    $('resultAvatar').alt = persona.name;
     $('personaName').textContent = persona.name;
     $('matchPercent').textContent = `${pct.primary}%`;
     $('mixedHint').hidden = !pct.mixed;
