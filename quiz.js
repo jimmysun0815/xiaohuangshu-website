@@ -1132,7 +1132,7 @@ if (typeof document !== 'undefined') {
     }
   }
 
-  function drawShareCard(primaryCode, ranked) {
+  function drawShareCard(primaryCode, ranked, avatarImg) {
     const persona = PERSONAS[primaryCode];
     const W = 1080;
     const ACCENT = '#e04b2e';
@@ -1150,7 +1150,12 @@ if (typeof document !== 'undefined') {
     for (const line of persona[currentVersion]) {
       descLines.push(...wrapLines(measure, line, cardW - 100));
     }
-    const cardY = 500;
+    // 人格头像占位后，名字及以下整体下移
+    const hasAvatar = !!avatarImg;
+    const nameY = hasAvatar ? 518 : 330;
+    const pctY = nameY + 66;
+    const taglineY = pctY + 60;
+    const cardY = taglineY + 48;
     const cardH = descLines.length * lineH + 84;
     const hasSecondary = ranked[1][1] > 0;
     const secondaryY = cardY + cardH + 58;
@@ -1183,28 +1188,49 @@ if (typeof document !== 'undefined') {
 
     ctx.textAlign = 'center';
 
-    // 顶部（紧凑排布）
+    // 顶部
     ctx.fillStyle = MUTED;
     ctx.font = `600 32px ${FONT}`;
-    ctx.fillText('多人成行 · 开放性关系人格测试', W / 2, 88);
+    ctx.fillText('多人成行 · 开放性关系人格测试', W / 2, 80);
 
     ctx.fillStyle = FG;
     ctx.font = `500 42px ${FONT}`;
-    ctx.fillText('我的开放性关系人格是', W / 2, 196);
+    ctx.fillText('我的开放性关系人格是', W / 2, hasAvatar ? 162 : 196);
+
+    // 人格头像（白底图 → 白圆角贴片，居中裁方 cover）
+    if (hasAvatar) {
+      const av = 232;
+      const avX = (W - av) / 2;
+      const avY = 200;
+      ctx.save();
+      roundRect(ctx, avX, avY, av, av, 36);
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
+      ctx.clip();
+      const s = Math.min(avatarImg.naturalWidth, avatarImg.naturalHeight);
+      const sx = (avatarImg.naturalWidth - s) / 2;
+      const sy = (avatarImg.naturalHeight - s) / 2;
+      ctx.drawImage(avatarImg, sx, sy, s, s, avX, avY, av, av);
+      ctx.restore();
+      ctx.strokeStyle = 'rgba(224,75,46,0.2)';
+      ctx.lineWidth = 2;
+      roundRect(ctx, avX, avY, av, av, 36);
+      ctx.stroke();
+    }
 
     ctx.fillStyle = ACCENT;
     const nameSize = persona.name.length > 6 ? 88 : 104;
     ctx.font = `800 ${nameSize}px ${FONT}`;
-    ctx.fillText(persona.name, W / 2, 330);
+    ctx.fillText(persona.name, W / 2, nameY);
 
     const pct = matchPercents(ranked);
     ctx.fillStyle = FG;
     ctx.font = `700 38px ${FONT}`;
-    ctx.fillText(`匹配度 ${pct.primary}%`, W / 2, 396);
+    ctx.fillText(`匹配度 ${pct.primary}%`, W / 2, pctY);
 
     ctx.fillStyle = FG;
     ctx.font = `500 38px ${FONT}`;
-    ctx.fillText(persona.tagline, W / 2, 456);
+    ctx.fillText(persona.tagline, W / 2, taglineY);
 
     // 描述卡片（全文，不截断）
     ctx.fillStyle = 'rgba(255,255,255,0.85)';
@@ -1394,9 +1420,22 @@ if (typeof document !== 'undefined') {
     showToast('委婉版卡片已保存，可以直接发小红书 / 朋友圈', 5000);
   }
 
+  // 图片加载器（带缓存），canvas 画头像前需先 await 加载完成
+  const _imgCache = {};
+  function loadImage(src) {
+    if (_imgCache[src]) return Promise.resolve(_imgCache[src]);
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => { _imgCache[src] = img; resolve(img); };
+      img.onerror = () => resolve(null);
+      img.src = src;
+    });
+  }
+
   async function makeCardBlob() {
     const ranked = rankScores(computeScores(resultAnswers));
-    const canvas = drawShareCard(ranked[0][0], ranked);
+    const avatar = await loadImage(`./assets/avatar/${ranked[0][0]}.jpg`);
+    const canvas = drawShareCard(ranked[0][0], ranked, avatar);
     const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
     return { blob, ranked };
   }
@@ -1467,10 +1506,10 @@ if (typeof document !== 'undefined') {
       }
 
       // 桌面端。X 的网页 intent 不接受图片，只能：图进剪贴板 → 用户在推文框粘贴。
-      // 顺序很关键：必须先写剪贴板（此时本页还在焦点上，否则浏览器会拒绝写入），
-      // 再开发推窗口；画布是同步的，整个过程都在点击手势的有效期内。
+      // 头像需先加载完（此时页面仍在焦点，剪贴板写入前完成），再画布 + 写剪贴板 + 开窗。
       const ranked2 = rankScores(computeScores(resultAnswers));
-      const canvas = drawShareCard(ranked2[0][0], ranked2);
+      const avatar2 = await loadImage(`./assets/avatar/${ranked2[0][0]}.jpg`);
+      const canvas = drawShareCard(ranked2[0][0], ranked2, avatar2);
       const blobPromise = new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
       let copied = false;
       if (navigator.clipboard && window.ClipboardItem) {
