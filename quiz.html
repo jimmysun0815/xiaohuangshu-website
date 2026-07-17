@@ -22,7 +22,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32.png" />
     <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png" />
     <link rel="stylesheet" href="./styles.css" />
-    <link rel="stylesheet" href="./quiz.css?v=23" />
+    <link rel="stylesheet" href="./quiz.css?v=24" />
   </head>
   <body>
     <!-- ─── 18+ 验证遮罩 ─── -->
@@ -53,9 +53,28 @@
     <main class="quiz-main container">
       <!-- ─── 入口页（暗色氛围，PRD 方案A：情绪 + 悬念型） ─── -->
       <section class="view" id="viewIntro">
-        <h1 class="intro-title intro-title-top">你以为你了解自己？</h1>
+        <div class="intro-hero">
+          <p class="intro-kicker">开放性关系人格测试</p>
+          <h1 class="intro-title">了解你的开放关系人格</h1>
+          <p class="intro-sub">
+            20 道情景题，测出你对开放性关系的真实倾向。<br />
+            结果可能让你沉默，也可能让你想立刻发给朋友。
+          </p>
+          <p class="intro-stats">20 道情景题&ensp;·&ensp;4-6 分钟&ensp;·&ensp;11 种人格结果</p>
+          <button class="intro-start" id="startBtn" type="button">
+            开始测试，看看你是哪种人
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </button>
+          <p class="intro-micro">测试免费，结果仅自己可见</p>
+          <p class="intro-note">凭直觉作答，没有对错。答案只在你的设备上计算，不会上传。</p>
+          <p class="intro-social">已有 <strong id="socialCount">128</strong> 人完成测试</p>
+        </div>
+
         <!-- 11 种人格预览墙（3×4，中央为标题格） -->
-        <div class="persona-wall persona-wall-top">
+        <div class="persona-wall">
           <figure class="persona-cell">
             <img src="./assets/avatar/PL.jpg" alt="纯爱者" loading="lazy" />
             <figcaption>纯爱者</figcaption>
@@ -104,24 +123,6 @@
             <img src="./assets/avatar/RA.jpg" alt="无界者" loading="lazy" />
             <figcaption>无界者</figcaption>
           </figure>
-        </div>
-
-        <div class="intro-hero">
-          <p class="intro-sub">
-            20 道情景题，测出你对开放性关系的真实倾向。<br />
-            结果可能让你沉默，也可能让你想立刻发给朋友。
-          </p>
-          <p class="intro-stats">20 道情景题&ensp;·&ensp;4-6 分钟&ensp;·&ensp;11 种人格结果</p>
-          <button class="intro-start" id="startBtn" type="button">
-            开始测试，看看你是哪种人
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-              <polyline points="12 5 19 12 12 19"></polyline>
-            </svg>
-          </button>
-          <p class="intro-micro">测试免费，结果仅自己可见</p>
-          <p class="intro-note">凭直觉作答，没有对错。答案只在你的设备上计算，不会上传。</p>
-          <p class="intro-social">已有 <strong id="socialCount">128</strong> 人完成测试</p>
         </div>
       </section>
 
@@ -268,6 +269,6 @@
     <div class="toast" id="toast" hidden></div>
 
     <script src="./vendor/qrcode.js"></script>
-    <script src="./quiz.js?v=23"></script>
+    <script src="./quiz.js?v=24"></script>
   </body>
 </html>

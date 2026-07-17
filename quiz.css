@@ -142,11 +142,11 @@ body::before {
 
 .intro-hero {
   text-align: center;
-  padding: 2rem 0 3rem;
+  padding: 4rem 0 3rem;
 }
 
 @media (min-width: 640px) {
-  .intro-hero { padding: 2.5rem 0 4rem; }
+  .intro-hero { padding: 5.5rem 0 4rem; }
 }
 
 .intro-kicker {
@@ -268,19 +268,6 @@ body::before {
   animation: introFadeUp 0.6s ease 0.6s both;
 }
 
-/* 置顶版：作为入口页主视觉，靠近顶部、更早入场 */
-.persona-wall-top {
-  margin-top: 1.75rem;
-  animation-delay: 0.18s;
-}
-
-/* 人格墙上方的大标题 */
-.intro-title-top {
-  text-align: center;
-  padding-top: 2.75rem;
-  margin-bottom: 0;
-  animation: introFadeUp 0.6s ease both;
-}
 
 .persona-cell {
   margin: 0;
