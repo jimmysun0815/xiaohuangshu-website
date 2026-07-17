@@ -22,7 +22,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32.png" />
     <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png" />
     <link rel="stylesheet" href="./styles.css" />
-    <link rel="stylesheet" href="./quiz.css?v=24" />
+    <link rel="stylesheet" href="./quiz.css?v=25" />
   </head>
   <body>
     <!-- ─── 18+ 验证遮罩 ─── -->
@@ -75,19 +75,19 @@
 
         <!-- 11 种人格预览墙（3×4，中央为标题格） -->
         <div class="persona-wall">
-          <figure class="persona-cell">
+          <figure class="persona-cell" data-code="PL" role="button" tabindex="0">
             <img src="./assets/avatar/PL.jpg" alt="纯爱者" loading="lazy" />
             <figcaption>纯爱者</figcaption>
           </figure>
-          <figure class="persona-cell">
+          <figure class="persona-cell" data-code="MO" role="button" tabindex="0">
             <img src="./assets/avatar/MO.jpg" alt="半开放者" loading="lazy" />
             <figcaption>半开放者</figcaption>
           </figure>
-          <figure class="persona-cell">
+          <figure class="persona-cell" data-code="PS" role="button" tabindex="0">
             <img src="./assets/avatar/PS.jpg" alt="纯性开放者" loading="lazy" />
             <figcaption>纯性开放者</figcaption>
           </figure>
-          <figure class="persona-cell">
+          <figure class="persona-cell" data-code="VG" role="button" tabindex="0">
             <img src="./assets/avatar/VG.jpg" alt="观望者" loading="lazy" />
             <figcaption>观望者</figcaption>
           </figure>
@@ -95,31 +95,31 @@
             <span class="persona-title-main">开放性关系<br />人格测试</span>
             <span class="persona-title-sub">11 种人格<br />你是哪一种</span>
           </div>
-          <figure class="persona-cell">
+          <figure class="persona-cell" data-code="CK" role="button" tabindex="0">
             <img src="./assets/avatar/CK.jpg" alt="绿帽者" loading="lazy" />
             <figcaption>绿帽者</figcaption>
           </figure>
-          <figure class="persona-cell">
+          <figure class="persona-cell" data-code="HW" role="button" tabindex="0">
             <img src="./assets/avatar/HW.jpg" alt="淫妻者" loading="lazy" />
             <figcaption>淫妻者</figcaption>
           </figure>
-          <figure class="persona-cell">
+          <figure class="persona-cell" data-code="BS" role="button" tabindex="0">
             <img src="./assets/avatar/BS.jpg" alt="被送者" loading="lazy" />
             <figcaption>被送者</figcaption>
           </figure>
-          <figure class="persona-cell">
+          <figure class="persona-cell" data-code="SW" role="button" tabindex="0">
             <img src="./assets/avatar/SW.jpg" alt="交换者" loading="lazy" />
             <figcaption>交换者</figcaption>
           </figure>
-          <figure class="persona-cell">
+          <figure class="persona-cell" data-code="KT" role="button" tabindex="0">
             <img src="./assets/avatar/KT.jpg" alt="共处者" loading="lazy" />
             <figcaption>共处者</figcaption>
           </figure>
-          <figure class="persona-cell">
+          <figure class="persona-cell" data-code="PR" role="button" tabindex="0">
             <img src="./assets/avatar/PR.jpg" alt="平行者" loading="lazy" />
             <figcaption>平行者</figcaption>
           </figure>
-          <figure class="persona-cell">
+          <figure class="persona-cell" data-code="RA" role="button" tabindex="0">
             <img src="./assets/avatar/RA.jpg" alt="无界者" loading="lazy" />
             <figcaption>无界者</figcaption>
           </figure>
@@ -268,7 +268,23 @@
 
     <div class="toast" id="toast" hidden></div>
 
+    <!-- 人格详情弹窗（点击人格墙格子弹出） -->
+    <div class="persona-modal" id="personaModal" hidden>
+      <div class="persona-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="pmName">
+        <button class="persona-modal-close" id="pmClose" type="button" aria-label="关闭">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+        <div class="persona-modal-avatar"><img id="pmAvatar" alt="" /></div>
+        <h3 class="persona-modal-name" id="pmName"></h3>
+        <p class="persona-modal-tagline" id="pmTagline"></p>
+        <div class="persona-modal-desc" id="pmDesc"></div>
+      </div>
+    </div>
+
     <script src="./vendor/qrcode.js"></script>
-    <script src="./quiz.js?v=24"></script>
+    <script src="./quiz.js?v=25"></script>
   </body>
 </html>

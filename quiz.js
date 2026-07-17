@@ -1498,10 +1498,55 @@ if (typeof document !== 'undefined') {
     }
   }
 
+  /* ─── 人格墙格子 → 详情弹窗 ─── */
+  function openPersonaModal(code) {
+    const persona = PERSONAS[code];
+    if (!persona) return;
+    $('pmAvatar').src = `./assets/avatar/${code}.jpg`;
+    $('pmAvatar').alt = persona.name;
+    $('pmName').textContent = persona.name;
+    $('pmTagline').textContent = persona.tagline;
+    const desc = $('pmDesc');
+    desc.innerHTML = '';
+    persona[currentVersion].forEach((line) => {
+      const p = document.createElement('p');
+      p.textContent = line;
+      desc.appendChild(p);
+    });
+    $('personaModal').hidden = false;
+    document.body.classList.add('no-scroll');
+  }
+
+  function closePersonaModal() {
+    $('personaModal').hidden = true;
+    document.body.classList.remove('no-scroll');
+  }
+
+  function initPersonaWall() {
+    document.querySelectorAll('.persona-cell[data-code]').forEach((cell) => {
+      const code = cell.getAttribute('data-code');
+      cell.addEventListener('click', () => openPersonaModal(code));
+      cell.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openPersonaModal(code);
+        }
+      });
+    });
+    $('pmClose').addEventListener('click', closePersonaModal);
+    $('personaModal').addEventListener('click', (e) => {
+      if (e.target === $('personaModal')) closePersonaModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !$('personaModal').hidden) closePersonaModal();
+    });
+  }
+
   /* ─── 初始化 ─── */
   function init() {
     initAgeGate();
     fetchQuizCount();
+    initPersonaWall();
 
     $('startBtn').addEventListener('click', startQuiz);
     $('prevBtn').addEventListener('click', () => {
