@@ -270,8 +270,16 @@ body::before {
 
 /* 置顶版：作为入口页主视觉，靠近顶部、更早入场 */
 .persona-wall-top {
-  margin-top: 1.5rem;
-  animation-delay: 0.1s;
+  margin-top: 1.75rem;
+  animation-delay: 0.18s;
+}
+
+/* 人格墙上方的大标题 */
+.intro-title-top {
+  text-align: center;
+  padding-top: 2.75rem;
+  margin-bottom: 0;
+  animation: introFadeUp 0.6s ease both;
 }
 
 .persona-cell {
