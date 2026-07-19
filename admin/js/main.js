@@ -133,6 +133,7 @@
     codes: "兑换码",
     events: "RC 事件流",
     voiceRooms: "Space 直播间",
+    quiz: "人格测试",
   };
 
   function bindNav() {

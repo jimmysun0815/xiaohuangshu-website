@@ -24,6 +24,9 @@
   const userSignupsByDay = (days = 30) =>
     rpc("admin_user_signups_by_day", { p_days: days });
 
+  // ─── 人格测试结果分布 ───
+  const quizPersonaStats = () => rpc("admin_quiz_persona_stats");
+
   // ─── Presets ───
   async function listPresets({
     onlyUser = true,
@@ -233,6 +236,8 @@
     // overview
     overviewStats,
     userSignupsByDay,
+    // quiz
+    quizPersonaStats,
     // presets
     listPresets,
     lookupEmails,

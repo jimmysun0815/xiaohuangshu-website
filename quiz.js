@@ -665,7 +665,7 @@ const SUPABASE_URL = 'https://smntepovprxaoxzebhxn.supabase.co';
 const SUPABASE_ANON_KEY =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtbnRlcG92cHJ4YW94emViaHhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MzUyODksImV4cCI6MjA5MzUxMTI4OX0.ri6OKFtsKRFgsL8Kbj_1mmoZXbR6ObgbSDNJqi-PX2Y';
 
-function callCounterRpc(fn) {
+function callQuizRpc(fn, body) {
   return fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`, {
     method: 'POST',
     headers: {
@@ -673,8 +673,12 @@ function callCounterRpc(fn) {
       Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
       'Content-Type': 'application/json',
     },
-    body: '{}',
+    body: JSON.stringify(body || {}),
   }).then((res) => (res.ok ? res.json() : Promise.reject(new Error(String(res.status)))));
+}
+
+function callCounterRpc(fn) {
+  return callQuizRpc(fn, {});
 }
 
 /* ─── 计分（§4.1 / §4.3） ─── */
@@ -791,7 +795,9 @@ if (typeof document !== 'undefined') {
             currentQ += 1;
             renderQuestion();
           } else {
-            bumpQuizCount(); // 只在真正做完 20 题时 +1（缓存恢复/分享链接不算）
+            // 只在真正做完 20 题时上报（缓存恢复/分享链接不计）
+            bumpQuizCount();
+            recordQuizResult(answers.slice());
             showResult(answers.slice(), false);
           }
         }, 180);
@@ -989,6 +995,14 @@ if (typeof document !== 'undefined') {
 
   function bumpQuizCount() {
     callCounterRpc('increment_quiz_completions').then(setSocialCount).catch(() => {});
+  }
+
+  // 记录本次结果分布（主/次人格），仅聚合计数，失败静默
+  function recordQuizResult(ans) {
+    const ranked = rankScores(computeScores(ans));
+    const primary = ranked[0][0];
+    const secondary = ranked[1] && ranked[1][1] > 0 ? ranked[1][0] : null;
+    callQuizRpc('record_quiz_result', { p_primary: primary, p_secondary: secondary }).catch(() => {});
   }
 
   function showToast(msg, duration) {
