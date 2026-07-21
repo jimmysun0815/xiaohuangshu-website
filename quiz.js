@@ -6,111 +6,160 @@
    ════════════════════════════════════════════════════════════════════ */
 
 /* ─── 题库（§3 问卷 + §4.2 计分映射表） ─── */
+/* v7 计分表整改（2026-07）：
+   - 新增 q21 交换 / q22 共同体 / q23 平行 三题，穿插在题序中
+   - PR 与 PS 解耦（"不想知道细节"类选项改为 PR 主导）
+   - 削减 CK/HW 搭车分；PL/BS 锚点选项部分降为 2 分
+   - 每题带稳定 id，DIMENSIONS 按 id 索引（调整题序不再错位） */
 const QUESTIONS = [
   {
+    id: 'q01',
     text: '当你想象自己的伴侣正在和别人做爱的时候，你的第一反应是？',
     options: [
       { text: '完全接受不了，很不舒服', scores: { PL: 3 } },
       { text: '有点不安，但可以勉强接受', scores: { MO: 2, PL: 1 } },
-      { text: '可以接受，但我不想知道细节', scores: { PS: 2, PR: 1 } },
-      { text: '有点兴奋，想听细节或看着', scores: { VG: 2, CK: 1, HW: 1 } },
-      { text: '很兴奋，甚至想自己也参与或被安排', scores: { BS: 2, CK: 1, HW: 1 } },
+      { text: '可以接受，但我不想知道细节', scores: { PR: 2, PS: 1 } },
+      { text: '有点兴奋，想听细节或看着', scores: { VG: 2, HW: 1 } },
+      { text: '很兴奋，甚至想自己也参与或被安排', scores: { BS: 2, HW: 1 } },
     ],
   },
   {
+    id: 'q02',
     text: '如果你的伴侣跟你说"我想和别人试试"，你最可能怎么回？',
     options: [
-      { text: '直接拒绝，或者认真谈风险', scores: { PL: 3 } },
+      { text: '直接拒绝，或者认真谈风险', scores: { PL: 2 } },
       { text: '犹豫很久，最后可能勉强同意但设很多限制', scores: { MO: 2, PL: 1 } },
       { text: '可以，但我不想知道太多细节，各自玩各自的', scores: { PS: 2, PR: 1 } },
-      { text: '可以，我想知道细节，或者我想在场/安排', scores: { HW: 2, VG: 1, CK: 1 } },
-      { text: '可以，那我也想试试，或者你帮我安排一次', scores: { BS: 3, SW: 1 } },
+      { text: '可以，我想知道细节，或者我想在场/安排', scores: { HW: 2, VG: 1 } },
+      { text: '可以，那我也想试试，或者你帮我安排一次', scores: { BS: 2, SW: 1 } },
     ],
   },
   {
+    id: 'q03',
     text: '你更享受以下哪种情况？',
     options: [
       { text: '两个人只属于彼此，身体和心都专一', scores: { PL: 3 } },
       { text: '对方可以偶尔出去约，但感情只属于我，我也不想知道细节', scores: { PS: 2, MO: 1, PR: 1 } },
-      { text: '看着对方和别人做爱，自己在旁边或事后听细节', scores: { VG: 3, CK: 1 } },
-      { text: '自己主动把对方送出去，并全程知道/参与安排', scores: { HW: 3, CK: 1 } },
+      { text: '看着对方和别人做爱，自己在旁边或事后听细节', scores: { VG: 3 } },
+      { text: '自己主动把对方送出去，并全程知道/参与安排', scores: { HW: 3 } },
       { text: '自己被对方送出去，被别人好好对待', scores: { BS: 3 } },
     ],
   },
   {
+    id: 'q04',
     text: '关于"性"和"爱"，你更接近哪种想法？',
     options: [
       { text: '性和爱必须绑定，分开就是出轨', scores: { PL: 3 } },
       { text: '爱可以专一，性可以适当开放，但最好有边界', scores: { PS: 2, MO: 1 } },
-      { text: '性和爱完全可以分开，对方出去玩我可以接受，不想管太多', scores: { PS: 2, PR: 1 } },
+      { text: '性和爱完全可以分开，对方出去玩我可以接受，不想管太多', scores: { PR: 2, PS: 1 } },
       { text: '标签不重要，当下真实的连接和快感才重要', scores: { RA: 3 } },
       { text: '我更想成为被分享、被渴望的那一方', scores: { BS: 2, PS: 1 } },
     ],
   },
   {
+    id: 'q05',
     text: '你理想中的多边/开放状态是？',
     options: [
       { text: '坚决不要，一对一到底', scores: { PL: 3 } },
-      { text: '可以开放，但大家各玩各的，互不打扰，也不必汇报细节', scores: { PR: 3, PS: 1 } },
+      { text: '可以开放，但大家各玩各的，互不打扰，也不必汇报细节', scores: { PR: 3 } },
       { text: '最好大家能一起吃饭聊天相处，像家人一样', scores: { KT: 3 } },
       { text: '不需要任何标签和固定结构，随缘流动', scores: { RA: 3 } },
-      { text: '有一个主伴侣，同时允许我被送出去体验', scores: { BS: 2, HW: 1, PS: 1 } },
+      { text: '有一个主伴侣，同时允许我被送出去体验', scores: { BS: 2, HW: 1 } },
     ],
   },
   {
+    id: 'q21',
+    text: '如果有一对你们都有好感的情侣，提议四个人交换伴侣玩一次，你会？',
+    options: [
+      { text: '完全无法想象，直接拒绝', scores: { PL: 2 } },
+      { text: '有点好奇，但大概率不敢答应', scores: { MO: 2 } },
+      { text: '可以试，但最好分开两个房间，各玩各的', scores: { SW: 2, PR: 2 } },
+      { text: '很想试，四个人在同一个空间里交换才有意思', scores: { SW: 3, KT: 1 } },
+      { text: '最兴奋的是能亲眼看着自己的伴侣被对方玩', scores: { SW: 2, VG: 2 } },
+    ],
+  },
+  {
+    id: 'q06',
     text: '看到伴侣被别人撩/夸很有魅力时，你真实的内心是？',
     options: [
-      { text: '吃醋，不舒服', scores: { PL: 3 } },
-      { text: '有点得意，也有点危机感', scores: { MO: 2, CK: 1 } },
+      { text: '吃醋，不舒服', scores: { PL: 2 } },
+      { text: '有点得意，也有点危机感', scores: { MO: 2 } },
       { text: '可以接受，觉得正常，但不会特别兴奋', scores: { PS: 1, PR: 1 } },
       { text: '兴奋，觉得对方被别人认可很性感，想推动或听细节', scores: { VG: 2, HW: 1, CK: 1 } },
-      { text: '兴奋，同时希望自己也被别人这样渴望', scores: { BS: 3, VG: 1 } },
+      { text: '兴奋，同时希望自己也被别人这样渴望', scores: { BS: 2, VG: 1 } },
     ],
   },
   {
+    id: 'q07',
     text: '你愿意自己被"绿"到什么程度？',
     options: [
-      { text: '完全不愿意', scores: { PL: 3 } },
-      { text: '可以接受对方有约，但不要太频繁、不要太深入，最好少说细节', scores: { MO: 2, PS: 1, PR: 1 } },
+      { text: '完全不愿意', scores: { PL: 2 } },
+      { text: '可以接受对方有约，但不要太频繁、不要太深入，最好少说细节', scores: { MO: 2, PR: 1 } },
       { text: '可以接受对方和别人做爱，自己知道细节就很刺激', scores: { VG: 2, CK: 2 } },
       { text: '希望对方被玩得很投入，自己越被"忽视"越兴奋', scores: { CK: 3, HW: 1 } },
-      { text: '我更希望自己是被送出去、被别人好好对待的那一方', scores: { BS: 3, CK: 1 } },
+      { text: '我更希望自己是被送出去、被别人好好对待的那一方', scores: { BS: 2, CK: 1 } },
     ],
   },
   {
+    id: 'q08',
     text: '你更倾向于？',
     options: [
       { text: '我绝对不会主动让伴侣去找别人', scores: { PL: 2, PR: 1 } },
-      { text: '如果对方想，我可以接受，但我不主动提，也不想管细节', scores: { PS: 2, MO: 1, PR: 1 } },
+      { text: '如果对方想，我可以接受，但我不主动提，也不想管细节', scores: { MO: 2, PR: 1 } },
       { text: '我自己有点想看/想被绿，但不会主动提', scores: { VG: 2, CK: 1 } },
-      { text: '我会主动提议，甚至安排对方出去玩', scores: { HW: 3, CK: 1 } },
+      { text: '我会主动提议，甚至安排对方出去玩', scores: { HW: 3 } },
       { text: '我更希望对方主动安排我出去玩', scores: { BS: 3 } },
     ],
   },
   {
+    id: 'q09',
     text: '关于"在场"和细节，你更喜欢？',
     options: [
-      { text: '绝对不能有别人在场，也不想知道任何细节', scores: { PL: 3 } },
-      { text: '对方出去约可以，但我不要知道太多细节', scores: { PS: 2, PR: 1 } },
+      { text: '绝对不能有别人在场，也不想知道任何细节', scores: { PL: 2 } },
+      { text: '对方出去约可以，但我不要知道太多细节', scores: { PR: 2, PS: 1 } },
       { text: '我可以接受听细节或看照片/视频', scores: { VG: 3 } },
-      { text: '我最想亲眼看着，或者一起参与安排', scores: { HW: 2, CK: 1, VG: 1 } },
-      { text: '我更想自己被对方安排出去，过程可以告诉对方', scores: { BS: 3, HW: 1 } },
+      { text: '我最想亲眼看着，或者一起参与安排', scores: { HW: 2, VG: 1, SW: 1 } },
+      { text: '我更想自己被对方安排出去，过程可以告诉对方', scores: { BS: 2, HW: 1 } },
     ],
   },
   {
+    id: 'q24',
+    text: '和另一对情侣一起出去旅行，晚上住同一间套房，你希望发生什么？',
+    options: [
+      { text: '我们不会和别的情侣住同一间房', scores: { PL: 2 } },
+      { text: '就正常玩，最多聊点比较开的话题', scores: { MO: 2 } },
+      { text: '可以玩点暧昧的游戏，但点到为止', scores: { MO: 1, VG: 1, KT: 1 } },
+      { text: '顺其自然，四个人玩到一起', scores: { SW: 3, RA: 1 } },
+      { text: '提前说好交换，各自好好体验对方的伴侣', scores: { SW: 3, PR: 1 } },
+    ],
+  },
+  {
+    id: 'q23',
+    text: '如果你们约定：各自可以有自己的性伙伴，但互不过问、也不带回共同生活，你觉得？',
+    options: [
+      { text: '无法接受，这和分手没什么区别', scores: { PL: 3 } },
+      { text: '对方真的很想要的话，可以勉强试试', scores: { MO: 2 } },
+      { text: '这就是我理想中的状态：独立、自由、互不打扰', scores: { PR: 3 } },
+      { text: '可以接受，但我其实会很想知道对方的细节', scores: { VG: 2, CK: 1 } },
+      { text: '与其各玩各的，不如认识一下、四个人一起玩', scores: { SW: 2, KT: 2 } },
+    ],
+  },
+  {
+    id: 'q10',
     text: '如果伴侣跟别人玩得很开心，回来跟你分享细节，你会？',
     options: [
-      { text: '很难受，可能发脾气或冷暴力', scores: { PL: 3 } },
-      { text: '表面平静，内心复杂，其实不太想听', scores: { MO: 2, PS: 1, PR: 1 } },
+      { text: '很难受，可能发脾气或冷暴力', scores: { PL: 2 } },
+      { text: '表面平静，内心复杂，其实不太想听', scores: { MO: 2, PR: 1 } },
       { text: '听得很认真，会兴奋', scores: { VG: 2, CK: 1 } },
-      { text: '听得超级兴奋，还会追问更多细节，甚至要求下次更过分', scores: { CK: 2, HW: 2, VG: 1 } },
-      { text: '听得很兴奋，同时希望下次轮到我被送出去', scores: { BS: 3, CK: 1 } },
+      { text: '听得超级兴奋，还会追问更多细节，甚至要求下次更过分', scores: { CK: 2, HW: 2 } },
+      { text: '听得很兴奋，同时希望下次轮到我被送出去', scores: { BS: 2 } },
     ],
   },
   {
+    id: 'q11',
     text: '你对"嫉妒"的真实态度是？',
     options: [
-      { text: '嫉妒是爱的证明，必须认真对待', scores: { PL: 3 } },
+      { text: '嫉妒是爱的证明，必须认真对待', scores: { PL: 2 } },
       { text: '嫉妒会有，但可以沟通管理', scores: { PR: 1, MO: 1, KT: 1 } },
       { text: '嫉妒可以被转化成兴奋', scores: { VG: 1, CK: 2, HW: 1 } },
       { text: '我几乎不靠嫉妒来确认关系，更多靠信任和自由', scores: { RA: 2, PS: 1 } },
@@ -118,29 +167,43 @@ const QUESTIONS = [
     ],
   },
   {
+    id: 'q12',
     text: '你理想的性生活形式更接近？',
     options: [
       { text: '只和固定伴侣，深度连接优先', scores: { PL: 3 } },
       { text: '固定伴侣为主，偶尔可以有新鲜感，但最好有限制', scores: { MO: 2, PS: 1 } },
-      { text: '固定伴侣 + 对方可以定期/不定期出去，我不想管太多', scores: { PS: 2, PR: 1 } },
+      { text: '固定伴侣 + 对方可以定期/不定期出去，我不想管太多', scores: { PR: 2, PS: 1 } },
       { text: '没有固定形式，想跟谁发生关系就跟谁', scores: { RA: 3 } },
-      { text: '固定伴侣 + 我偶尔被送出去体验新鲜', scores: { BS: 3, PS: 1 } },
+      { text: '固定伴侣 + 我偶尔被送出去体验新鲜', scores: { BS: 2, PS: 1 } },
     ],
   },
   {
+    id: 'q13',
     text: '当你看到别人的开放/NTR内容时，你通常？',
     options: [
-      { text: '觉得接受不了', scores: { PL: 3 } },
+      { text: '觉得接受不了', scores: { PL: 2 } },
       { text: '会好奇点进去看，但不会代入自己', scores: { MO: 1, PS: 1 } },
       { text: '会代入自己是被绿的那方，感觉刺激', scores: { VG: 2, CK: 2 } },
-      { text: '会代入自己是送出去的那方，或者安排的那方', scores: { HW: 2, CK: 1 } },
-      { text: '会代入自己是被送出去的那方，感觉刺激', scores: { BS: 3, VG: 1 } },
+      { text: '会代入自己是送出去的那方，或者安排的那方', scores: { HW: 2 } },
+      { text: '会代入自己是被送出去的那方，感觉刺激', scores: { BS: 2, VG: 1 } },
     ],
   },
   {
+    id: 'q22',
+    text: '如果你们和固定的玩伴关系越来越好，你更希望这段关系最终变成什么样？',
+    options: [
+      { text: '不会有这种关系，我只想要我们两个人', scores: { PL: 2 } },
+      { text: '玩归玩，日常生活里最好保持距离', scores: { PR: 2, MO: 1 } },
+      { text: '像家人一样一起吃饭、旅行、互相照顾，也共享亲密', scores: { KT: 3 } },
+      { text: '亲密可以有，但形式随缘、不用定义', scores: { RA: 2, KT: 1 } },
+      { text: '最好变成固定交换的两对，彼此知根知底', scores: { SW: 3, KT: 1 } },
+    ],
+  },
+  {
+    id: 'q14',
     text: '你更看重关系里的什么？',
     options: [
-      { text: '绝对的专一和安全感', scores: { PL: 3 } },
+      { text: '绝对的专一和安全感', scores: { PL: 2 } },
       { text: '清晰的边界和互相尊重', scores: { PR: 2, MO: 1 } },
       { text: '深度的情感连接 + 性开放', scores: { KT: 2, PS: 1 } },
       { text: '自由、流动、真实的欲望', scores: { RA: 3 } },
@@ -148,72 +211,78 @@ const QUESTIONS = [
     ],
   },
   {
+    id: 'q15',
     text: '如果要给自己的开放程度打分（1-10分，10分最开放），你内心真实分数大概是？',
     options: [
-      { text: '1-3分', scores: { PL: 3 } },
+      { text: '1-3分', scores: { PL: 2 } },
       { text: '4-6分', scores: { MO: 2, PR: 1 } },
       { text: '7-8分（可以开放，但有自己的节奏和边界）', scores: { PS: 1, VG: 1, KT: 1 } },
-      { text: '9-10分', scores: { HW: 1, CK: 1, RA: 1, PS: 1 } },
-      { text: '我更在意的是"被分享"的程度，而不是单纯的开放分数', scores: { BS: 3 } },
+      { text: '9-10分', scores: { HW: 1, RA: 1, PS: 1, SW: 1 } },
+      { text: '我更在意的是"被分享"的程度，而不是单纯的开放分数', scores: { BS: 2 } },
     ],
   },
   {
+    id: 'q16',
     text: '你能接受伴侣同时对别人产生感情吗？',
     options: [
-      { text: '完全不能', scores: { PL: 3 } },
+      { text: '完全不能', scores: { PL: 2 } },
       { text: '性可以，感情不行', scores: { PS: 2, PR: 1 } },
-      { text: '感情也可以，但要有主次或透明', scores: { KT: 2, CK: 1 } },
-      { text: '感情和性都可以同时存在，只要沟通好', scores: { RA: 2, KT: 1, HW: 1 } },
+      { text: '感情也可以，但要有主次或透明', scores: { KT: 2 } },
+      { text: '感情和性都可以同时存在，只要沟通好', scores: { RA: 2, KT: 1 } },
       { text: '我更希望自己也能被允许去建立新的连接', scores: { BS: 2, RA: 1 } },
     ],
   },
   {
+    id: 'q17',
     text: '你更喜欢什么样的权力动态？',
     options: [
-      { text: '平等专一，互相属于对方', scores: { PL: 3 } },
-      { text: '平等开放，各自独立，互不干涉', scores: { PR: 2, RA: 1, PS: 1 } },
+      { text: '平等专一，互相属于对方', scores: { PL: 2 } },
+      { text: '平等开放，各自独立，互不干涉', scores: { PR: 2, RA: 1 } },
       { text: '我更享受被"忽视/被绿"的被动位置', scores: { CK: 3, VG: 1 } },
       { text: '我更享受掌控全局、安排对方去玩的主动位置', scores: { HW: 3 } },
       { text: '我更享受被对方安排、被送出去的感觉', scores: { BS: 3 } },
     ],
   },
   {
+    id: 'q18',
     text: '关于"事后"，你更希望？',
     options: [
-      { text: '对方出去玩后最好当没发生过', scores: { PL: 3 } },
+      { text: '对方出去玩后最好当没发生过', scores: { PL: 2 } },
       { text: '简单说一下就行，不要太细', scores: { PS: 2, PR: 1, MO: 1 } },
       { text: '详细分享过程，我听着很兴奋', scores: { VG: 2, CK: 1 } },
       { text: '详细分享 + 我们立刻再做一次，用这些细节当燃料', scores: { CK: 2, HW: 2 } },
-      { text: '详细分享后，我也想被安排一次同样的体验', scores: { BS: 3, HW: 1 } },
+      { text: '详细分享后，我也想被安排一次同样的体验', scores: { BS: 2, HW: 1 } },
     ],
   },
   {
+    id: 'q19',
     text: '你觉得自己最接近哪种人？',
     options: [
       { text: '纯爱主义者', scores: { PL: 3 } },
       { text: '可以开放但很克制、有边界的人', scores: { MO: 2, PS: 1, PR: 1 } },
       { text: '享受观看或被绿的人', scores: { VG: 2, CK: 2 } },
-      { text: '主动推动伴侣出去玩的人', scores: { HW: 3, CK: 1 } },
+      { text: '主动推动伴侣出去玩的人', scores: { HW: 3 } },
       { text: '想被伴侣送出去体验的人', scores: { BS: 3 } },
     ],
   },
   {
+    id: 'q20',
     text: '最后一题：如果现在有一个按钮，按下后你的伴侣今晚就会和别人好好做一次爱，你会？',
     options: [
       { text: '绝对不按', scores: { PL: 3 } },
-      { text: '犹豫很久，大概率不按', scores: { MO: 2, CK: 1 } },
-      { text: '会按，但我不想知道细节', scores: { PS: 2, PR: 1 } },
+      { text: '犹豫很久，大概率不按', scores: { MO: 2 } },
+      { text: '会按，但我不想知道细节', scores: { PR: 2, PS: 1 } },
       { text: '毫不犹豫按下去，并且想听全过程', scores: { HW: 2, CK: 2, VG: 1 } },
-      { text: '我会按，同时希望也有一个按钮可以让我今晚被送出去', scores: { BS: 3, HW: 1 } },
+      { text: '我会按，同时希望也有一个按钮可以让我今晚被送出去', scores: { BS: 2, HW: 1 } },
     ],
   },
 ];
 
-/* ─── 并列时的主结果优先级（v5 §4.1，数字越小越优先）
-   CK > HW > BS > VG > PS > SW > KT > PR > RA > MO > PL ─── */
+/* ─── 并列时的主结果优先级（v7：稀有人格优先，补偿其给分点少的体质；
+   数字越小越优先）SW > KT > PR > RA > MO > VG > BS > HW > CK > PS > PL ─── */
 const PRIORITY = {
-  CK: 1, HW: 2, BS: 3, VG: 4, PS: 5,
-  SW: 6, KT: 7, PR: 8, RA: 9, MO: 10, PL: 11,
+  SW: 1, KT: 2, PR: 3, RA: 4, MO: 5,
+  VG: 6, BS: 7, HW: 8, CK: 9, PS: 10, PL: 11,
 };
 
 /* ─── 11 种人格（v5 §2 名单 + §7 两版文案） ─── */
@@ -565,16 +634,17 @@ function matchPercents(ranked) {
   };
 }
 
-/* ─── 维度分析（v5 §6）───
-   map: 题目下标（0-based）→ [A,B,C,D,E] 各选项对该维度的贡献分（0~3），
+/* ─── 维度分析（v5 §6，v7 起 map 按题目 id 索引）───
+   map: 题目 id → [A,B,C,D,E] 各选项对该维度的贡献分（0~3），
    维度得分 = Σ贡献 / Σ每题最大贡献 × 100。 */
 const DIMENSIONS = [
   {
     key: 'jealousyToExcitement',
     name: '嫉妒-兴奋转化度',
     map: {
-      0: [0, 1, 1, 3, 2], 5: [0, 1, 1, 3, 2], 6: [0, 1, 2, 3, 1],
-      9: [0, 1, 2, 3, 2], 10: [0, 1, 3, 1, 1], 19: [0, 1, 1, 3, 2],
+      q01: [0, 1, 1, 3, 2], q06: [0, 1, 1, 3, 2], q07: [0, 1, 2, 3, 1],
+      q10: [0, 1, 2, 3, 2], q11: [0, 1, 3, 1, 1], q20: [0, 1, 1, 3, 2],
+      q21: [0, 1, 1, 2, 3],
     },
     desc: {
       high: '「被绿」对你更像燃料——嫉妒能直接转化成兴奋。',
@@ -586,8 +656,8 @@ const DIMENSIONS = [
     key: 'agency',
     name: '主动性',
     map: {
-      1: [0, 1, 1, 2, 1], 2: [0, 1, 1, 3, 0],
-      7: [0, 1, 1, 3, 0], 16: [0, 1, 1, 3, 0],
+      q02: [0, 1, 1, 2, 1], q03: [0, 1, 1, 3, 0],
+      q08: [0, 1, 1, 3, 0], q17: [0, 1, 1, 3, 0],
     },
     desc: {
       high: '你倾向主动推动、亲自安排，而不是被动等它发生。',
@@ -599,9 +669,9 @@ const DIMENSIONS = [
     key: 'desireToBeShared',
     name: '被分享意愿',
     map: {
-      2: [0, 0, 0, 1, 3], 4: [0, 1, 0, 1, 3], 6: [0, 0, 0, 1, 3],
-      7: [0, 0, 0, 1, 3], 9: [0, 0, 0, 1, 3], 16: [0, 0, 1, 0, 3],
-      18: [0, 0, 0, 1, 3],
+      q03: [0, 0, 0, 1, 3], q05: [0, 1, 0, 1, 3], q07: [0, 0, 0, 1, 3],
+      q08: [0, 0, 0, 1, 3], q10: [0, 0, 0, 1, 3], q17: [0, 0, 1, 0, 3],
+      q19: [0, 0, 0, 1, 3],
     },
     desc: {
       high: '被伴侣放心地送出去、被别人好好对待，正是你想要的体验。',
@@ -613,8 +683,9 @@ const DIMENSIONS = [
     key: 'sexLoveSeparation',
     name: '性爱分离度',
     map: {
-      3: [0, 2, 3, 2, 2], 11: [0, 1, 2, 3, 2], 13: [0, 1, 2, 2, 1],
-      14: [0, 1, 2, 3, 2], 15: [0, 2, 2, 3, 2],
+      q04: [0, 2, 3, 2, 2], q12: [0, 1, 2, 3, 2], q14: [0, 1, 2, 2, 1],
+      q15: [0, 1, 2, 3, 2], q16: [0, 2, 2, 3, 2],
+      q23: [0, 1, 3, 2, 2],
     },
     desc: {
       high: '你能把身体快感和情感连接分得很开。',
@@ -626,8 +697,9 @@ const DIMENSIONS = [
     key: 'structurePreference',
     name: '关系结构偏好',
     map: {
-      4: [1, 0, 3, 1, 1], 8: [0, 0, 1, 3, 1],
-      13: [1, 0, 3, 1, 1], 15: [0, 1, 2, 3, 2],
+      q05: [1, 0, 3, 1, 1], q09: [0, 0, 1, 3, 1],
+      q14: [1, 0, 3, 1, 1], q16: [0, 1, 2, 3, 2],
+      q21: [0, 0, 1, 3, 1], q22: [0, 1, 3, 1, 2], q24: [0, 0, 1, 2, 1],
     },
     desc: {
       high: '你喜欢大家像家人一样紧密共处的多边结构。',
@@ -637,16 +709,22 @@ const DIMENSIONS = [
   },
 ];
 
+/* 题目 id → 当前题序下标。DIMENSIONS.map 按 id 存，调题序不用改 map。 */
+const QUESTION_INDEX_BY_ID = {};
+QUESTIONS.forEach((q, i) => {
+  QUESTION_INDEX_BY_ID[q.id] = i;
+});
+
 function computeDimensions(answers) {
   return DIMENSIONS.map((d) => {
     let sum = 0;
     let max = 0;
-    for (const qi in d.map) {
-      const a = answers[qi];
+    for (const qid in d.map) {
+      const a = answers[QUESTION_INDEX_BY_ID[qid]];
       // 跳过缺失/非法的答案，只按已答题目归一化，避免 NaN
       if (!(a >= 0 && a <= 4)) continue;
-      sum += d.map[qi][a];
-      max += Math.max.apply(null, d.map[qi]);
+      sum += d.map[qid][a];
+      max += Math.max.apply(null, d.map[qid]);
     }
     const score = max > 0 ? Math.round((sum / max) * 100) : 0;
     const band = score >= 70 ? 'high' : score >= 40 ? 'mid' : 'low';
@@ -657,7 +735,7 @@ function computeDimensions(answers) {
 const OPTION_KEYS = ['A', 'B', 'C', 'D', 'E'];
 const QUIZ_URL = 'https://duorenchengxing.com/quiz.html';
 const AGE_KEY = 'quiz_age_verified';
-const LAST_KEY = 'quiz_last_answers_v6';
+const LAST_KEY = 'quiz_last_answers_v7';
 
 /* ─── 完成计数（真实数据，Supabase RPC，见 0035_quiz_completion_counter.sql）
    跟客户端 / admin 共用同一个 anon key，访问控制全靠 RLS + security definer。 ─── */
@@ -795,7 +873,7 @@ if (typeof document !== 'undefined') {
             currentQ += 1;
             renderQuestion();
           } else {
-            // 只在真正做完 20 题时上报（缓存恢复/分享链接不计）
+            // 只在真正做完全部题目时上报（缓存恢复/分享链接不计）
             bumpQuizCount();
             recordQuizResult(answers.slice());
             showResult(answers.slice(), false);
